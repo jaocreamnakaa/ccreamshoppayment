@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบรับชำระเงินและสะสมแต้มร้านค้า</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Prompt & Itim (Pastel Girl Vibe) -->
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Cropper.js CSS & JS for Image Cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f0f9ff;
+            background-image: 
+                radial-gradient(#bae6fd 1.2px, transparent 1.2px),
+                radial-gradient(#e0f2fe 1.2px, transparent 1.2px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0f2fe;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #7dd3fc;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+        .btn-sweet {
+            border-radius: 9999px;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .btn-sweet:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+        .card-sweet {
+            border-radius: 2rem;
+            box-shadow: 0 10px 30px -5px rgba(56, 189, 248, 0.12), 0 8px 15px -6px rgba(186, 230, 253, 0.2);
+        }
+        .cute-font {
+            font-family: 'Itim', cursive;
+        }
+        .bubble-pulse {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-700 flex flex-col">
+
+    <!-- Background Audio & Music Container (Supports direct files & Iframe embeds) -->
+    <audio id="bgAudio" loop class="hidden"></audio>
+    <div id="embedMusicContainer" class="hidden"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-gradient-to-r from-sky-300 via-sky-400 to-sky-300 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('customer-pay')">
+                <!-- Shop Logo Badge -->
+                <div class="bg-white text-sky-400 rounded-full font-bold text-xl flex items-center justify-center w-12 h-12 shadow-md border-2 border-sky-100 overflow-hidden shrink-0">
+                    <img id="headerShopLogo" src="https://placehold.co/150x150/38bdf8/ffffff?text=Logo" alt="Shop Logo" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <!-- Shop Name -->
+                    <h1 class="font-bold text-xl leading-tight tracking-wide drop-shadow-sm cute-font text-white" id="headerShopName">ร้านค้าสมาร์ทเพย์</h1>
+                    <p class="text-xs text-sky-50 flex items-center gap-1">
+                        <i class="fa-solid fa-sparkles text-[10px] text-yellow-200"></i> ระบบโอนเงิน & สะสมแต้มพาสเทล ✨
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <!-- Mini Floating Speaker Audio Button (Upper Right) -->
+                <button id="btnHeaderSpeaker" onclick="toggleAudio()" title="เปิด/ปิด เสียงเพลงบรรยากาศ" class="w-9 h-9 rounded-full bg-white/30 hover:bg-white/40 backdrop-blur-md border border-white/50 text-white flex items-center justify-center shadow-sm transition transform hover:scale-110 active:scale-95">
+                    <i id="iconHeaderSpeaker" class="fa-solid fa-volume-xmark text-sm"></i>
+                </button>
+
+                <!-- Role Switcher -->
+                <div class="flex items-center space-x-1 bg-white/30 p-1.5 rounded-full backdrop-blur-md border border-white/40 shadow-inner">
+                    <button id="btnRoleCustomer" onclick="setRole('customer')" class="px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold transition duration-200 bg-white text-sky-500 shadow-sm">
+                        <i class="fa-solid fa-face-smile mr-1 text-sky-400"></i> ลูกค้า
+                    </button>
+                    <button id="btnRoleAdmin" onclick="setRole('admin')" class="px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold transition duration-200 text-white hover:bg-white/20">
+                        <i class="fa-solid fa-user-gear mr-1"></i> แอดมิน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sub Navigation for Customer -->
+    <div id="customerNav" class="bg-white/90 backdrop-blur-md border-b border-sky-100 shadow-xs sticky top-[68px] z-40">
+        <div class="max-w-5xl mx-auto px-4 flex justify-around md:justify-center md:space-x-8">
+            <button onclick="switchTab('customer-pay')" id="tab-customer-pay" class="py-3 px-4 border-b-2 border-sky-400 font-semibold text-sky-600 text-sm flex items-center space-x-2 transition rounded-t-xl">
+                <i class="fa-solid fa-qrcode text-sky-400"></i>
+                <span>โอนเงิน / ชำระเงิน</span>
+            </button>
+            <button onclick="switchTab('customer-points')" id="tab-customer-points" class="py-3 px-4 border-b-2 border-transparent font-medium text-slate-500 hover:text-sky-500 text-sm flex items-center space-x-2 transition rounded-t-xl">
+                <i class="fa-solid fa-star text-amber-400"></i>
+                <span>เช็กแต้มสะสม</span>
+            </button>
+            <button onclick="switchTab('customer-contact')" id="tab-customer-contact" class="py-3 px-4 border-b-2 border-transparent font-medium text-slate-500 hover:text-sky-500 text-sm flex items-center space-x-2 transition rounded-t-xl">
+                <i class="fa-solid fa-comments text-sky-400"></i>
+                <span>ติดต่อร้านค้า</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6">
+
+        <!-- Announcement Bubbles Section (Customer Facing) -->
+        <div id="announcementBubblesContainer" class="mb-5 flex flex-wrap gap-2.5 justify-center">
+            <!-- Dynamic announcement bubbles generated by JS -->
+        </div>
+
+        <!-- Notification Alert Toast -->
+        <div id="toast" class="hidden fixed bottom-6 right-6 z-50 bg-white/95 backdrop-blur-md text-slate-800 px-5 py-3.5 rounded-3xl shadow-2xl flex items-center space-x-3 border-2 border-sky-200 transition-all duration-300">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-sky-400 text-xl"></i>
+            <span id="toastMessage" class="text-sm font-medium">ข้อความแจ้งเตือน</span>
+        </div>
+
+        <!-- ==================== CUSTOMER VIEW ==================== -->
+        <div id="customerView">
+
+            <!-- TAB 1: Payment & Slip Upload -->
+            <section id="sec-customer-pay" class="space-y-6">
+                <!-- Step 1: Customer Name & Security PIN -->
+                <div class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70">
+                    <h2 class="text-base font-semibold text-sky-600 flex items-center mb-3">
+                        <span class="bg-gradient-to-r from-sky-400 to-sky-300 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold mr-2.5 shadow-sm">1</span>
+                        กรอกชื่อ & ตั้งรหัส PIN ส่วนตัวสำหรับสะสมแต้ม
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="customerNameInput" class="block text-xs font-medium text-slate-500 mb-1.5">ชื่อที่ใช้สะสมแต้ม (ห้ามซ้ำกับผู้อื่น) <span class="text-sky-400">*</span></label>
+                            <div class="relative">
+                                <input type="text" id="customerNameInput" oninput="checkDuplicateCustomerName()" placeholder="เช่น น้องฟ้า_01 หรือ สมชาย_88" class="w-full pl-10 pr-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 text-sm bg-sky-50/20">
+                                <i class="fa-solid fa-heart text-sky-300 absolute left-4 top-3.5 text-sm"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="customerPinInput" class="block text-xs font-medium text-slate-500 mb-1.5">รหัส PIN 4 หลักส่วนตัว (ป้องกันคนอื่นแอบดูประวัติ) <span class="text-sky-400">*</span></label>
+                            <div class="relative">
+                                <input type="password" id="customerPinInput" maxlength="4" pattern="\d{4}" placeholder="เช่น 1234" class="w-full pl-10 pr-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 text-sm bg-sky-50/20 tracking-widest font-bold">
+                                <i class="fa-solid fa-key text-sky-300 absolute left-4 top-3.5 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Duplicate Name Security Warning -->
+                    <div id="duplicateNameNotice" class="hidden mt-3 p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-rose-700 text-xs">
+                        <i class="fa-solid fa-shield-exclamation text-rose-500 text-base mt-0.5"></i>
+                        <div>
+                            <strong class="block font-semibold">ตรวจพบชื่อซ้ำในระบบ!</strong>
+                            <span>ชื่อนี้มีผู้ใช้งานแล้ว หากคุณเป็นเจ้าของชื่อนี้ กรุณากรอกรหัส <strong>PIN 4 หลักเดิม</strong> ที่เคยตั้งไว้ให้ถูกต้องเพื่อสะสมแต้มต่อ (หากไม่ใช่เจ้าของ กรุณาตั้งชื่อใหม่ที่ไม่ซ้ำค่ะ)</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-sky-400 mt-2 pl-2">* จดจำ "ชื่อ" และ "รหัส PIN 4 หลัก" ของคุณไว้ใช้เปิดดูแต้มสะสมและประวัติการโอนเงินส่วนตัว</p>
+                </div>
+
+                <!-- Step 2: Bank & QR Info -->
+                <div class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70 grid md:grid-cols-2 gap-6 items-center">
+                    <div class="space-y-4">
+                        <h2 class="text-base font-semibold text-sky-600 flex items-center">
+                            <span class="bg-gradient-to-r from-sky-400 to-sky-300 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold mr-2.5 shadow-sm">2</span>
+                            ข้อมูลบัญชีธนาคารร้านค้า
+                        </h2>
+                        
+                        <!-- List of Bank Accounts -->
+                        <div id="customerBankAccountsList" class="space-y-3">
+                            <!-- Dynamic Bank Channels Container -->
+                        </div>
+
+                        <!-- Copy Remark Code Section -->
+                        <div class="bg-gradient-to-r from-sky-50 to-blue-50 p-4 rounded-2xl border border-sky-100">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-xs font-semibold text-sky-700 block">ข้อความสำหรับบันทึกช่วยจำ/กำกับสลิป</span>
+                                    <p id="displayRemarkText" class="text-xs text-sky-600 font-medium mt-1">ชำระค่าสินค้าสะสมแต้ม</p>
+                                </div>
+                                <button onclick="copyRemarkText()" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-xs transition shrink-0 ml-2">
+                                    <i class="fa-regular fa-copy mr-1"></i> คัดลอก
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Display -->
+                    <div class="flex flex-col items-center justify-center p-5 bg-gradient-to-b from-sky-50/60 via-blue-50/40 to-sky-50/60 rounded-3xl border-2 border-dashed border-sky-200 text-center relative">
+                        <span class="text-xs font-semibold text-sky-600 mb-3 flex items-center gap-1.5 cute-font text-sm">
+                            <i class="fa-solid fa-qrcode text-sky-400"></i> สแกน QR Code เพื่อชำระเงิน
+                        </span>
+                        <div class="bg-white p-3.5 rounded-3xl shadow-sm border-2 border-sky-200 max-w-[210px] relative">
+                            <img id="displayQrImage" src="https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment" alt="QR Code" class="w-full h-auto rounded-2xl object-contain">
+                        </div>
+                        <p id="displayPointsRatioInfo" class="text-[11px] text-sky-600 font-semibold mt-3 bg-white px-4 py-1.5 rounded-full border border-sky-200 shadow-xs">✨ ทุก 100 บาท = 1 แต้ม ✨</p>
+                    </div>
+                </div>
+
+                <!-- Step 3: Upload Slip -->
+                <div class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70">
+                    <h2 class="text-base font-semibold text-sky-600 flex items-center mb-4">
+                        <span class="bg-gradient-to-r from-sky-400 to-sky-300 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold mr-2.5 shadow-sm">3</span>
+                        ส่งสลิปการโอนเงิน
+                    </h2>
+
+                    <form id="slipForm" onsubmit="handleCustomerSubmitSlip(event)" class="space-y-4">
+                        <div>
+                            <label for="transferAmountInput" class="block text-xs font-medium text-slate-500 mb-1.5">จำนวนเงินที่โอน (บาท) <span class="text-sky-400">*</span></label>
+                            <input type="number" step="0.01" min="1" id="transferAmountInput" placeholder="0.00" required class="w-full px-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 text-sm bg-sky-50/20">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1.5">แนบรูปภาพสลิปการโอนเงิน <span class="text-sky-400">*</span></label>
+                            <input type="file" id="slipFileInput" accept="image/*" required onchange="previewSlipImage(event)" class="hidden">
+                            
+                            <label for="slipFileInput" class="border-2 border-dashed border-sky-200 hover:border-sky-300 bg-sky-50/20 hover:bg-sky-50/40 rounded-3xl p-5 flex flex-col items-center justify-center cursor-pointer transition text-center min-h-[140px]">
+                                <div id="uploadPlaceholder" class="space-y-2">
+                                    <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-400 flex items-center justify-center mx-auto text-xl shadow-xs">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    </div>
+                                    <p class="text-sm font-semibold text-sky-600">คลิกเพื่อเลือกรูปภาพสลิป</p>
+                                    <p class="text-xs text-slate-400">รองรับไฟล์ภาพ JPG, PNG (บีบอัดภาพให้อัตโนมัติ)</p>
+                                </div>
+                                <img id="slipPreviewImage" class="hidden max-h-48 rounded-2xl object-contain border-2 border-sky-200 shadow-sm" alt="Slip Preview">
+                            </label>
+                        </div>
+
+                        <button type="submit" id="btnSubmitSlip" class="btn-sweet w-full bg-gradient-to-r from-sky-400 via-sky-300 to-sky-400 hover:from-sky-500 hover:to-sky-400 text-white font-semibold py-3.5 rounded-full shadow-md transition duration-200 flex items-center justify-center space-x-2 text-base">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>ส่งสลิปแจ้งชำระเงิน</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- TAB 2: Check Customer Points (Requires Name + 4-digit PIN) -->
+            <section id="sec-customer-points" class="hidden space-y-6">
+                <div class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70">
+                    <h2 class="text-base font-semibold text-sky-600 mb-3 flex items-center">
+                        <i class="fa-solid fa-shield-halved text-sky-400 mr-2"></i> ยืนยันชื่อ & รหัส PIN ส่วนตัวเพื่อดูแต้มและประวัติ
+                    </h2>
+                    <div class="grid sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-1">
+                            <input type="text" id="searchCustomerPointsInput" placeholder="ชื่อสะสมแต้มของคุณ" class="w-full px-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 text-sm bg-sky-50/20">
+                        </div>
+                        <div class="sm:col-span-1">
+                            <input type="password" id="searchCustomerPinInput" maxlength="4" placeholder="รหัส PIN 4 หลัก" class="w-full px-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 text-sm bg-sky-50/20 tracking-widest font-bold text-center">
+                        </div>
+                        <div class="sm:col-span-1">
+                            <button onclick="searchCustomerPoints()" class="btn-sweet w-full bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white px-6 py-3 rounded-full font-semibold text-sm transition shadow-sm">
+                                <i class="fa-solid fa-magnifying-glass mr-1"></i> เข้าดูข้อมูลส่วนตัว
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-2 pl-2">* ระบบป้องกันความเป็นส่วนตัว: ต้องใช้ชื่อและรหัส PIN 4 หลักตรงกันจึงจะเปิดดูประวัติการโอนเงินได้</p>
+                </div>
+
+                <!-- Points Card Result -->
+                <div id="pointsResultCard" class="hidden bg-gradient-to-br from-sky-400 via-sky-300 to-sky-400 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden border-2 border-white/50">
+                    <div class="absolute -right-4 -bottom-4 opacity-20 text-9xl">
+                        <i class="fa-solid fa-star text-yellow-200"></i>
+                    </div>
+                    <div class="relative z-10 space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs text-sky-50">ข้อมูลผู้สะสมแต้ม</p>
+                                <h3 id="resultCustomerName" class="text-2xl font-bold cute-font tracking-wide">คุณสมชาย ใจดี</h3>
+                            </div>
+                            <span class="bg-white/30 px-3.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border border-white/40">💖 สมาชิก VIP</span>
+                        </div>
+                        <div class="py-2">
+                            <p class="text-xs text-sky-50">แต้มสะสมคงเหลือทั้งหมด</p>
+                            <div class="flex items-baseline space-x-2">
+                                <span id="resultCustomerPoints" class="text-5xl font-extrabold tracking-tight drop-shadow-sm">0</span>
+                                <span class="text-lg font-medium text-sky-50">แต้ม</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Slip History -->
+                <div id="customerHistorySection" class="hidden bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70">
+                    <h3 class="text-sm font-semibold text-sky-600 mb-3 flex items-center">
+                        <i class="fa-solid fa-clock-rotate-left mr-2 text-sky-400"></i> ประวัติรายการแจ้งโอนเงินส่วนตัวของคุณ
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-sky-50/80 text-sky-700 uppercase font-semibold">
+                                <tr>
+                                    <th class="p-3.5 rounded-l-2xl">วัน/เวลา</th>
+                                    <th class="p-3.5">ยอดโอน</th>
+                                    <th class="p-3.5">แต้มที่ได้รับ</th>
+                                    <th class="p-3.5 rounded-r-2xl">สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerHistoryTable" class="divide-y divide-sky-50">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: Contact Shop -->
+            <section id="sec-customer-contact" class="hidden">
+                <div class="bg-white card-sweet p-6 md:p-8 border-2 border-sky-100/70 space-y-6">
+                    <div class="text-center max-w-md mx-auto space-y-3">
+                        <!-- Shop Logo Large Badge -->
+                        <div class="w-24 h-24 bg-gradient-to-tr from-sky-100 to-sky-50 text-sky-400 rounded-full flex items-center justify-center mx-auto mb-2 border-4 border-sky-200 shadow-md overflow-hidden">
+                            <img id="contactShopLogo" src="https://placehold.co/150x150/38bdf8/ffffff?text=Logo" alt="Shop Logo" class="w-full h-full object-cover">
+                        </div>
+                        <h2 class="text-2xl font-bold text-sky-600 cute-font" id="contactShopTitle">ร้านค้าสมาร์ทเพย์</h2>
+                        <p class="text-xs text-slate-400">หากมีข้อสงสัยเกี่ยวกับยอดเงินหรือแต้มสะสม ติดต่อเราได้ทันทีค่ะ ✨</p>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto pt-4">
+                        <a id="linkContactLine" href="#" target="_blank" class="p-4 bg-emerald-50/70 hover:bg-emerald-100/70 rounded-2xl border border-emerald-200 flex items-center space-x-3 transition group">
+                            <div class="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xl shrink-0 shadow-xs group-hover:scale-105 transition">
+                                <i class="fa-brands fa-line"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="text-xs text-emerald-600 font-medium block">LINE Official</span>
+                                <span id="displayContactLine" class="text-sm font-semibold text-slate-700 truncate block">@smartpay_shop</span>
+                            </div>
+                        </a>
+
+                        <a id="linkContactPhone" href="#" class="p-4 bg-sky-50/70 hover:bg-sky-100/70 rounded-2xl border border-sky-200 flex items-center space-x-3 transition group">
+                            <div class="w-11 h-11 rounded-full bg-sky-400 text-white flex items-center justify-center text-xl shrink-0 shadow-xs group-hover:scale-105 transition">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="text-xs text-sky-600 font-medium block">เบอร์โทรศัพท์</span>
+                                <span id="displayContactPhone" class="text-sm font-semibold text-slate-700 truncate block">089-123-4567</span>
+                            </div>
+                        </a>
+
+                        <a id="linkContactFacebook" href="#" target="_blank" class="p-4 bg-blue-50/70 hover:bg-blue-100/70 rounded-2xl border border-blue-200 flex items-center space-x-3 sm:col-span-2 transition group">
+                            <div class="w-11 h-11 rounded-full bg-blue-500 text-white flex items-center justify-center text-xl shrink-0 shadow-xs group-hover:scale-105 transition">
+                                <i class="fa-brands fa-facebook"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="text-xs text-blue-600 font-medium block">Facebook Page</span>
+                                <span id="displayContactFacebook" class="text-sm font-semibold text-slate-700 truncate block">SmartPay Shop ร้านค้าออนไลน์</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== ADMIN VIEW ==================== -->
+        <div id="adminView" class="hidden space-y-6">
+
+            <!-- Admin Header Status & Logout -->
+            <div class="bg-sky-50 border border-sky-200 rounded-3xl px-5 py-3 flex flex-wrap justify-between items-center gap-2 text-xs">
+                <span class="text-sky-700 font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-shield text-sky-500"></i> เข้าสู่ระบบแอดมินโดย: <span id="loggedInAdminEmailText" class="underline">admin@smartpay.com</span>
+                </span>
+                <button onclick="logoutAdmin()" class="bg-rose-100 hover:bg-rose-200 text-rose-600 px-3 py-1 rounded-full font-semibold transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> ออกจากระบบแอดมิน
+                </button>
+            </div>
+
+            <!-- Admin Nav Tabs -->
+            <div class="bg-white card-sweet p-2 border-2 border-sky-100/70 flex flex-wrap gap-2">
+                <button onclick="switchAdminTab('slips')" id="btnAdminTabSlips" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs flex items-center space-x-2">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>ตรวจสอบสลิป</span>
+                    <span id="pendingBadge" class="bg-sky-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">0</span>
+                </button>
+                <button onclick="switchAdminTab('points')" id="btnAdminTabPoints" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
+                    <i class="fa-solid fa-users text-sky-400"></i>
+                    <span>จัดการแต้มสะสม</span>
+                </button>
+                <button onclick="switchAdminTab('bubbles')" id="btnAdminTabBubbles" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
+                    <i class="fa-solid fa-comment-dots text-sky-400"></i>
+                    <span>จัดการบับเบิ้ลข้อความ</span>
+                </button>
+                <button onclick="switchAdminTab('settings')" id="btnAdminTabSettings" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
+                    <i class="fa-solid fa-gear text-sky-400"></i>
+                    <span>ตั้งค่าร้านค้า & บัญชี</span>
+                </button>
+            </div>
+
+            <!-- ADMIN TAB 1: Slips Management -->
+            <section id="sec-admin-slips" class="space-y-4">
+                <div class="bg-white card-sweet p-5 border-2 border-sky-100/70">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base font-bold text-sky-600 flex items-center">
+                            <i class="fa-solid fa-list-check text-sky-400 mr-2"></i> รายการแจ้งชำระเงินของลูกค้า
+                        </h2>
+                        <span class="text-xs text-slate-400">เรียงตามรายการล่าสุด</span>
+                    </div>
+
+                    <div id="slipsListContainer" class="space-y-4">
+                        <!-- Dynamic slip items generated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADMIN TAB 2: Points Management -->
+            <section id="sec-admin-points" class="hidden space-y-4">
+                <div class="bg-white card-sweet p-5 border-2 border-sky-100/70 space-y-4">
+                    <h2 class="text-base font-bold text-sky-600 flex items-center">
+                        <i class="fa-solid fa-users-gear text-sky-400 mr-2"></i> ตรวจสอบและจัดการแต้มสะสมลูกค้า
+                    </h2>
+
+                    <!-- Filter / Search -->
+                    <div class="flex gap-2">
+                        <input type="text" id="adminSearchCustomerInput" oninput="renderAdminCustomerPointsTable()" placeholder="ค้นหาตามชื่อลูกค้า..." class="w-full px-4 py-2.5 rounded-full border border-sky-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-sky-50/20">
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-sky-50/80 text-sky-700 uppercase font-semibold">
+                                <tr>
+                                    <th class="p-3.5 rounded-l-2xl">ชื่อลูกค้า</th>
+                                    <th class="p-3.5">PIN 4 หลัก</th>
+                                    <th class="p-3.5">ยอดโอนรวมสะสม</th>
+                                    <th class="p-3.5">แต้มคงเหลือ</th>
+                                    <th class="p-3.5 text-center rounded-r-2xl">จัดการแต้ม</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminCustomerPointsTable" class="divide-y divide-sky-50">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADMIN TAB 3: Dynamic Announcements & Bubbles Management -->
+            <section id="sec-admin-bubbles" class="hidden space-y-4">
+                <div class="bg-white card-sweet p-5 border-2 border-sky-100/70 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base font-bold text-sky-600 flex items-center cute-font text-lg">
+                            <i class="fa-solid fa-comments text-sky-400 mr-2"></i> เพิ่ม/แก้ไข บับเบิ้ลข้อความประชาสัมพันธ์บนหน้าเว็บ
+                        </h2>
+                        <button type="button" onclick="addNewBubbleRow()" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> เพิ่มบับเบิ้ลใหม่
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-400">บับเบิ้ลข้อความจะแสดงผลที่ด้านบนของหน้าเว็บไซต์ฝั่งลูกค้า สามารถเปิด/ปิดการแสดงผลได้</p>
+
+                    <div id="adminBubblesContainer" class="space-y-3">
+                        <!-- Dynamic Bubble Edit Items -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADMIN TAB 4: Settings -->
+            <section id="sec-admin-settings" class="hidden space-y-6">
+                
+                <!-- Music Control Panel (Supports MP3, YouTube, Spotify, Embed Links) -->
+                <div class="bg-gradient-to-r from-sky-50 via-white to-sky-50 rounded-3xl p-5 border-2 border-sky-100 space-y-4 shadow-xs">
+                    <h2 class="text-base font-bold text-sky-600 flex items-center cute-font text-lg">
+                        <i class="fa-solid fa-music text-sky-400 mr-2"></i> ระบบเพลงบรรยากาศพื้นหลัง (MP3 / YouTube / Spotify)
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label for="editMusicUrl" class="block text-xs font-medium text-slate-600 mb-1">URL ลิ้งค์เพลง (ไฟล์ MP3, ลิ้งค์ YouTube, หรือ Spotify)</label>
+                            <input type="url" id="editMusicUrl" placeholder="https://www.youtube.com/watch?v=... หรือ MP3 URL" class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button type="button" id="btnToggleMusic" onclick="toggleAudio()" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white text-xs font-semibold px-5 py-2.5 rounded-full shadow-xs flex items-center space-x-1.5 shrink-0">
+                                <i id="iconMusicPlay" class="fa-solid fa-play"></i>
+                                <span id="textMusicPlay">เปิดเพลง</span>
+                            </button>
+                            <div class="flex-grow flex items-center space-x-2 bg-white px-3 py-1.5 rounded-full border border-sky-200">
+                                <i class="fa-solid fa-volume-low text-sky-400 text-xs"></i>
+                                <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.5" oninput="changeVolume(this.value)" class="w-full accent-sky-400 cursor-pointer">
+                                <i class="fa-solid fa-volume-high text-sky-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Security Email & Password Section -->
+                <div class="bg-white card-sweet p-5 border-2 border-sky-100/70 space-y-3">
+                    <h2 class="text-base font-bold text-sky-600 flex items-center cute-font text-lg">
+                        <i class="fa-solid fa-lock text-sky-400 mr-2"></i> ตั้งค่าบัญชีอีเมล & รหัสผ่านสำหรับเข้าหน้าแอดมิน (เฉพาะแอดมินเท่านั้น)
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="editAdminEmail" class="block text-xs font-medium text-slate-600 mb-1">อีเมลแอดมิน (เริ่มต้น: admin@smartpay.com)</label>
+                            <input type="email" id="editAdminEmail" required placeholder="admin@smartpay.com" class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none bg-sky-50/10">
+                        </div>
+                        <div>
+                            <label for="editAdminPasscode" class="block text-xs font-medium text-slate-600 mb-1">รหัสผ่านแอดมิน (เริ่มต้น: 1234)</label>
+                            <input type="text" id="editAdminPasscode" required placeholder="1234" class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none bg-sky-50/10">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shop & Bank Form -->
+                <form onsubmit="handleSaveShopSettings(event)" class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70 space-y-5">
+                    <h2 class="text-base font-bold text-sky-600 flex items-center border-b border-sky-100 pb-3">
+                        <i class="fa-solid fa-building-columns text-sky-400 mr-2"></i> แก้ไขข้อมูลธนาคาร & ร้านค้า
+                    </h2>
+
+                    <!-- Shop Logo Upload & Shop Name Edit -->
+                    <div class="p-4 bg-sky-50/50 rounded-2xl border border-sky-100 space-y-4">
+                        <h3 class="text-xs font-semibold text-sky-700">โลโก้และชื่อร้านค้า</h3>
+                        <div class="flex flex-col sm:flex-row items-center gap-4">
+                            <div class="w-20 h-20 rounded-full border-2 border-sky-200 overflow-hidden shrink-0 bg-white shadow-xs">
+                                <img id="adminShopLogoPreview" src="https://placehold.co/150x150/38bdf8/ffffff?text=Logo" alt="Shop Logo Preview" class="w-full h-full object-cover">
+                            </div>
+                            <div class="space-y-2 flex-grow w-full">
+                                <div>
+                                    <input type="file" id="adminLogoFileInput" accept="image/*" onchange="previewAdminLogoImage(event)" class="hidden">
+                                    <label for="adminLogoFileInput" class="btn-sweet bg-white hover:bg-sky-100 text-sky-600 px-4 py-1.5 rounded-full text-xs font-semibold border border-sky-200 cursor-pointer transition inline-block shadow-xs">
+                                        <i class="fa-solid fa-crop-simple mr-1"></i> เลือกและครอบตัดรูปโลโก้ร้าน
+                                    </label>
+                                    <span class="text-[11px] text-slate-400 ml-2">รองรับการครอบตัด & บีบอัดภาพ</span>
+                                </div>
+                                <div>
+                                    <label for="editShopName" class="block text-xs font-medium text-slate-600 mb-1">จุดใส่ชื่อร้านค้า</label>
+                                    <input type="text" id="editShopName" required class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <!-- Config Points Rate Ratio -->
+                        <div class="md:col-span-2">
+                            <label for="editAmountPerPoint" class="block text-xs font-medium text-slate-600 mb-1">กำหนดยอดโอนต่อ 1 แต้ม (บาท)</label>
+                            <div class="relative flex items-center">
+                                <input type="number" id="editAmountPerPoint" min="1" step="1" placeholder="เช่น 50 หรือ 100" required class="w-full pl-4 pr-24 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none bg-sky-50/10 font-semibold text-sky-700">
+                                <span class="absolute right-4 text-xs font-semibold text-sky-400">บาท = 1 แต้ม</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manage Bank Accounts (Add / Remove Feature) -->
+                    <div class="border-t border-sky-100 pt-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="block text-xs font-semibold text-slate-700">จัดการช่องทางโอนเงิน / บัญชีธนาคารร้านค้า</label>
+                            <button type="button" onclick="addNewBankAccountRow()" class="btn-sweet bg-sky-100 hover:bg-sky-200 text-sky-600 text-xs font-semibold px-3 py-1.5 rounded-full transition flex items-center gap-1">
+                                <i class="fa-solid fa-plus text-xs"></i> เพิ่มบัญชีธนาคาร
+                            </button>
+                        </div>
+                        <div id="adminBankAccountsContainer" class="space-y-3">
+                            <!-- Dynamic Bank Channels Edit List -->
+                        </div>
+                    </div>
+
+                    <div class="border-t border-sky-100 pt-4">
+                        <label for="editRemarkText" class="block text-xs font-medium text-slate-600 mb-1">ข้อความสำหรับให้ลูกค้ากำกับสลิป</label>
+                        <input type="text" id="editRemarkText" required class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none bg-sky-50/10">
+                    </div>
+
+                    <!-- Manage QR Code -->
+                    <div class="border-t border-sky-100 pt-4">
+                        <label class="block text-xs font-medium text-slate-600 mb-2">อัปเดตภาพ QR Code สำหรับรับชำระเงิน</label>
+                        <div class="flex items-center space-x-4">
+                            <img id="adminQrPreview" src="https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment" class="w-20 h-20 rounded-2xl border-2 border-sky-200 object-contain bg-sky-50/30" alt="Admin QR Preview">
+                            <div>
+                                <input type="file" id="adminQrFileInput" accept="image/*" onchange="previewAdminQrImage(event)" class="hidden">
+                                <label for="adminQrFileInput" class="btn-sweet bg-sky-100 hover:bg-sky-200 text-sky-700 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition inline-block">
+                                    <i class="fa-solid fa-crop-simple mr-1"></i> เลือกและครอบตัดรูป QR Code
+                                </label>
+                                <p class="text-[11px] text-slate-400 mt-1.5">รองรับการครอบตัด ปรับมุมมอง และบีบอัดอัตโนมัติ</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details Form with Links -->
+                    <div class="border-t border-sky-100 pt-4 space-y-4">
+                        <h3 class="text-xs font-semibold text-slate-700">แก้ไขข้อมูลช่องทางติดต่อร้านค้า & ลิ้งค์</h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="editContactLine" class="block text-xs font-medium text-slate-600 mb-1">LINE ID / ข้อความ</label>
+                                <input type="text" id="editContactLine" class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none mb-2">
+                                <label for="editContactLineUrl" class="block text-[11px] text-sky-500 font-medium mb-1">URL ลิ้งค์ LINE</label>
+                                <input type="url" id="editContactLineUrl" placeholder="https://line.me/ti/p/..." class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="editContactPhone" class="block text-xs font-medium text-slate-600 mb-1">เบอร์โทรศัพท์</label>
+                                <input type="text" id="editContactPhone" class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none mb-2">
+                                <label for="editContactPhoneUrl" class="block text-[11px] text-sky-500 font-medium mb-1">URL ลิ้งค์โทร (เช่น tel:0891234567)</label>
+                                <input type="text" id="editContactPhoneUrl" placeholder="tel:0891234567" class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="editContactFacebook" class="block text-xs font-medium text-slate-600 mb-1">Facebook Page</label>
+                                <input type="text" id="editContactFacebook" class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none mb-2">
+                                <label for="editContactFacebookUrl" class="block text-[11px] text-sky-500 font-medium mb-1">URL ลิ้งค์ Facebook</label>
+                                <input type="url" id="editContactFacebookUrl" placeholder="https://facebook.com/..." class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-sky-100">
+                        <button type="submit" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white font-semibold px-8 py-3 rounded-full text-sm shadow-md transition">
+                            <i class="fa-solid fa-floppy-disk mr-1.5"></i> บันทึกการตั้งค่าทั้งหมด
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Modal for Admin Email & Password Login -->
+    <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border-2 border-sky-200 text-center">
+            <div class="w-14 h-14 bg-sky-100 text-sky-500 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h3 class="text-lg font-bold text-sky-600 cute-font">เข้าสู่ระบบแอดมิน (เฉพาะแอดมิน)</h3>
+            <p class="text-xs text-slate-500">กรุณากรอกอีเมลและรหัสผ่านแอดมินเพื่อเข้าแก้ไขข้อมูล</p>
+            
+            <div class="space-y-2.5 text-left">
+                <div>
+                    <label class="text-[11px] font-medium text-slate-500 pl-2">อีเมลแอดมิน</label>
+                    <input type="email" id="adminEmailInput" placeholder="admin@smartpay.com" onkeyup="if(event.key==='Enter') verifyAdminPasscode()" class="w-full px-4 py-2.5 border border-sky-200 rounded-full text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[11px] font-medium text-slate-500 pl-2">รหัสผ่าน</label>
+                    <input type="password" id="adminPasscodeInput" placeholder="••••" onkeyup="if(event.key==='Enter') verifyAdminPasscode()" class="w-full px-4 py-2.5 border border-sky-200 rounded-full text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none tracking-widest font-bold">
+                </div>
+            </div>
+
+            <div class="flex justify-center space-x-2 pt-2">
+                <button onclick="closeAdminLoginModal()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ยกเลิก</button>
+                <button onclick="verifyAdminPasscode()" class="btn-sweet px-6 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">เข้าสู่ระบบ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Image Crop (Cropper.js) -->
+    <div id="cropModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="relative max-w-lg w-full bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-sky-200 flex flex-col max-h-[90vh]">
+            <div class="p-4 bg-gradient-to-r from-sky-400 to-sky-300 text-white flex justify-between items-center shrink-0">
+                <h3 id="cropModalTitle" class="text-sm font-semibold cute-font text-base">ครอบตัดรูปภาพ</h3>
+                <button onclick="closeCropModal()" class="text-white/80 hover:text-white p-1 rounded-full">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-hidden flex-grow flex items-center justify-center bg-slate-50">
+                <div class="max-h-[55vh] max-w-full overflow-hidden flex justify-center items-center">
+                    <img id="cropImageTarget" src="" alt="Image to Crop" class="max-h-[50vh] object-contain">
+                </div>
+            </div>
+            <div class="p-4 bg-white border-t border-sky-100 flex justify-between items-center gap-2 shrink-0 flex-wrap">
+                <div class="flex space-x-1">
+                    <button type="button" onclick="rotateCropper(-90)" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-full text-xs font-semibold border border-sky-200">
+                        <i class="fa-solid fa-rotate-left"></i> หมุนซ้าย
+                    </button>
+                    <button type="button" onclick="rotateCropper(90)" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-full text-xs font-semibold border border-sky-200">
+                        <i class="fa-solid fa-rotate-right"></i> หมุนขวา
+                    </button>
+                </div>
+                <div class="flex space-x-2">
+                    <button type="button" onclick="closeCropModal()" class="btn-sweet px-4 py-2 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ยกเลิก</button>
+                    <button type="button" onclick="confirmCropImage()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">ยืนยันการครอบตัด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Slip Image Full Preview -->
+    <div id="imageModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="relative max-w-lg w-full bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-sky-200">
+            <div class="p-4 bg-gradient-to-r from-sky-400 to-sky-300 text-white flex justify-between items-center">
+                <h3 class="text-sm font-semibold cute-font text-base">ตรวจสอบรูปภาพสลิป</h3>
+                <button onclick="closeImageModal()" class="text-white/80 hover:text-white p-1 rounded-full">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-4 text-center max-h-[75vh] overflow-y-auto">
+                <img id="modalImageSrc" src="" alt="Full Slip Image" class="mx-auto rounded-2xl max-h-[60vh] object-contain border-2 border-sky-100">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Edit Points -->
+    <div id="editPointsModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border-2 border-sky-200">
+            <h3 class="text-base font-bold text-sky-600 cute-font text-lg">แก้ไขแต้มสะสม</h3>
+            <p id="editPointsCustomerName" class="text-xs text-slate-500">คุณ...</p>
+            
+            <div>
+                <label for="newPointsInput" class="block text-xs font-medium text-slate-600 mb-1">จำนวนแต้มสะสมใหม่</label>
+                <input type="number" id="newPointsInput" min="0" class="w-full px-4 py-2.5 border border-sky-200 rounded-full text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none">
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeEditPointsModal()" class="btn-sweet px-4 py-2 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ยกเลิก</button>
+                <button onclick="saveCustomerPoints()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white/80 border-t border-sky-100 py-4 mt-auto">
+        <div class="max-w-5xl mx-auto px-4 text-center text-xs text-sky-500/80 font-medium">
+            &copy; 2026 <span id="footerShopName">ร้านค้าสมาร์ทเพย์</span> - ระบบรับชำระเงินและสะสมแต้ม 🩵✨
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // ================= STATE & INITIAL DATA =================
+        const DEFAULT_SETTINGS = {
+            shopName: "ร้านค้าสมาร์ทเพย์",
+            shopLogo: "https://placehold.co/150x150/38bdf8/ffffff?text=Logo",
+            adminEmail: "admin@smartpay.com", // Default Admin Email
+            adminPasscode: "1234",           // Default Admin Passcode
+            bankAccounts: [
+                { id: "acc_1", channel: "ธนาคารกสิกรไทย (K-Bank)", name: "บจก. ร้านค้าสมาร์ทเพย์", number: "123-4-56789-0" }
+            ],
+            remarkText: "ชำระค่าสินค้าสะสมแต้ม",
+            qrImage: "https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment",
+            contactLine: "@smartpay_shop",
+            contactLineUrl: "https://line.me",
+            contactPhone: "089-123-4567",
+            contactPhoneUrl: "tel:0891234567",
+            contactFacebook: "SmartPay Shop ร้านค้าออนไลน์",
+            contactFacebookUrl: "https://facebook.com",
+            musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            amountPerPoint: 100, // Default: 100 THB = 1 Point
+            bubbles: [
+                { id: "b1", text: "✨ ยินดีต้อนรับเข้าสู่ระบบสะสมแต้ม!", active: true },
+                { id: "b2", text: "🎁 โอนวันนี้ รับแต้มสะสมพิเศษทันที", active: true }
+            ]
+        };
+
+        // Mock Initial Slips (With customerPin for anti-impersonation & privacy protection)
+        const INITIAL_SLIPS = [
+            {
+                id: "slip_101",
+                customerName: "สมชาย ใจดี",
+                customerPin: "1111",
+                amount: 500,
+                pointsCalculated: 5,
+                slipImage: "https://placehold.co/400x600/bae6fd/0369a1?text=Sample+Slip+500B",
+                timestamp: new Date(Date.now() - 3600000 * 2).toLocaleString('th-TH'),
+                status: "approved"
+            },
+            {
+                id: "slip_102",
+                customerName: "สายใจ มีสุข",
+                customerPin: "2222",
+                amount: 1200,
+                pointsCalculated: 12,
+                slipImage: "https://placehold.co/400x600/bae6fd/0369a1?text=Sample+Slip+1200B",
+                timestamp: new Date(Date.now() - 3600000).toLocaleString('th-TH'),
+                status: "pending"
+            }
+        ];
+
+        // Global State Variables
+        let shopSettings = { ...DEFAULT_SETTINGS };
+        let slipRecords = [...INITIAL_SLIPS];
+        let currentRole = 'customer';
+        let isAdminLoggedIn = false;
+        let selectedSlipImageBase64 = '';
+        let tempAdminQrBase64 = '';
+        let tempAdminLogoBase64 = '';
+        let editingCustomerKey = null;
+        let isPlayingAudio = false;
+
+        // Image Cropper State
+        let cropperInstance = null;
+        let cropTargetType = null; // 'logo' or 'qr'
+
+        // ================= IMAGE COMPRESSION UTILITY =================
+        function compressImage(fileOrDataUrl, maxWidth, maxHeight, quality, callback) {
+            const img = new Image();
+            if (typeof fileOrDataUrl === 'string') {
+                img.src = fileOrDataUrl;
+                img.onload = function () {
+                    processCanvas(img);
+                };
+            } else {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileOrDataUrl);
+                reader.onload = function (event) {
+                    img.src = event.target.result;
+                    img.onload = function () {
+                        processCanvas(img);
+                    };
+                };
+            }
+
+            function processCanvas(loadedImg) {
+                const canvas = document.createElement('canvas');
+                let width = loadedImg.width;
+                let height = loadedImg.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(loadedImg, 0, 0, width, height);
+                
+                const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                callback(dataUrl);
+            }
+        }
+
+        // ================= CROPPER MODAL SYSTEM =================
+        function openCropModal(imageSrc, type) {
+            cropTargetType = type;
+            const modal = document.getElementById('cropModal');
+            const targetImg = document.getElementById('cropImageTarget');
+            const modalTitle = document.getElementById('cropModalTitle');
+
+            if (type === 'logo') {
+                modalTitle.textContent = "ครอบตัดรูปภาพโลโก้ร้านค้า";
+            } else if (type === 'qr') {
+                modalTitle.textContent = "ครอบตัดรูปภาพ QR Code";
+            }
+
+            targetImg.src = imageSrc;
+            modal.classList.remove('hidden');
+
+            if (cropperInstance) {
+                cropperInstance.destroy();
+            }
+
+            // Init Cropper
+            cropperInstance = new Cropper(targetImg, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.9,
+                responsive: true,
+            });
+        }
+
+        function closeCropModal() {
+            document.getElementById('cropModal').classList.add('hidden');
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+            cropTargetType = null;
+
+            // Reset File Inputs
+            document.getElementById('adminLogoFileInput').value = '';
+            document.getElementById('adminQrFileInput').value = '';
+        }
+
+        function rotateCropper(degree) {
+            if (cropperInstance) {
+                cropperInstance.rotate(degree);
+            }
+        }
+
+        function confirmCropImage() {
+            if (!cropperInstance) return;
+
+            const canvas = cropperInstance.getCroppedCanvas({
+                maxWidth: 600,
+                maxHeight: 600,
+            });
+
+            if (!canvas) return;
+
+            const croppedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+
+            if (cropTargetType === 'logo') {
+                compressImage(croppedBase64, 200, 200, 0.85, function (compressedBase64) {
+                    tempAdminLogoBase64 = compressedBase64;
+                    document.getElementById('adminShopLogoPreview').src = compressedBase64;
+                    showToast("ครอบตัดรูปโลโก้เรียบร้อยแล้ว", "success");
+                });
+            } else if (cropTargetType === 'qr') {
+                compressImage(croppedBase64, 400, 400, 0.85, function (compressedBase64) {
+                    tempAdminQrBase64 = compressedBase64;
+                    document.getElementById('adminQrPreview').src = compressedBase64;
+                    showToast("ครอบตัดรูป QR Code เรียบร้อยแล้ว", "success");
+                });
+            }
+
+            closeCropModal();
+        }
+
+        // ================= INITIALIZATION =================
+        window.onload = function () {
+            renderSettingsUI();
+            renderAdminSlipsList();
+            renderAdminCustomerPointsTable();
+            renderAdminBubblesInputs();
+            renderCustomerBubbles();
+            updatePendingBadge();
+            setupAudio();
+        };
+
+        // ================= ADMIN EMAIL & PASSCODE LOGIN UTILITY =================
+        function openAdminLoginModal() {
+            document.getElementById('adminEmailInput').value = '';
+            document.getElementById('adminPasscodeInput').value = '';
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('adminEmailInput').focus(), 100);
+        }
+
+        function closeAdminLoginModal() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        function verifyAdminPasscode() {
+            const email = document.getElementById('adminEmailInput').value.trim().toLowerCase();
+            const passcode = document.getElementById('adminPasscodeInput').value.trim();
+            
+            const targetEmail = (shopSettings.adminEmail || "admin@smartpay.com").toLowerCase();
+            const targetCode = shopSettings.adminPasscode || "1234";
+
+            if (!email || !passcode) {
+                showToast("กรุณากรอกทั้งอีเมลและรหัสผ่านแอดมิน", "error");
+                return;
+            }
+
+            if (email === targetEmail && passcode === targetCode) {
+                isAdminLoggedIn = true;
+                document.getElementById('loggedInAdminEmailText').textContent = shopSettings.adminEmail;
+                closeAdminLoginModal();
+                showToast("เข้าสู่ระบบแอดมินสำเร็จ ยินดีต้อนรับค่ะ", "success");
+                applyRoleChange('admin');
+            } else {
+                showToast("อีเมลหรือรหัสผ่านแอดมินไม่ถูกต้อง!", "error");
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            showToast("ออกจากระบบแอดมินเรียบร้อยแล้ว", "success");
+            applyRoleChange('customer');
+        }
+
+        // ================= CHECK DUPLICATE CUSTOMER NAME (ANTI-IMPERSONATION) =================
+        function checkDuplicateCustomerName() {
+            const inputVal = document.getElementById('customerNameInput').value.trim();
+            const notice = document.getElementById('duplicateNameNotice');
+            if (!inputVal) {
+                notice.classList.add('hidden');
+                return;
+            }
+
+            const existingRecord = slipRecords.find(s => s.customerName.toLowerCase() === inputVal.toLowerCase());
+            if (existingRecord) {
+                notice.classList.remove('hidden');
+            } else {
+                notice.classList.add('hidden');
+            }
+        }
+
+        // ================= UNIVERSAL AUDIO & EMBED MUSIC CONTROLS =================
+        function parseEmbedMusicUrl(url) {
+            if (!url) return { type: 'none', src: '' };
+            const cleanUrl = url.trim();
+
+            if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+                let videoId = '';
+                if (cleanUrl.includes('youtu.be/')) {
+                    videoId = cleanUrl.split('youtu.be/')[1].split('?')[0].split('&')[0];
+                } else if (cleanUrl.includes('watch?v=')) {
+                    videoId = cleanUrl.split('watch?v=')[1].split('&')[0];
+                } else if (cleanUrl.includes('embed/')) {
+                    videoId = cleanUrl.split('embed/')[1].split('?')[0];
+                }
+                if (videoId) {
+                    return { type: 'embed', src: `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&enablejsapi=1` };
+                }
+            }
+
+            if (cleanUrl.includes('spotify.com')) {
+                let embedUrl = cleanUrl.replace('spotify.com/', 'spotify.com/embed/');
+                if (!embedUrl.includes('?')) embedUrl += '?utm_source=generator&autoplay=1';
+                else embedUrl += '&autoplay=1';
+                return { type: 'embed', src: embedUrl };
+            }
+
+            if (cleanUrl.includes('soundcloud.com') && cleanUrl.includes('w.soundcloud.com/player')) {
+                let scUrl = cleanUrl;
+                if (!scUrl.includes('auto_play=')) {
+                    scUrl += (scUrl.includes('?') ? '&' : '?') + 'auto_play=true';
+                }
+                return { type: 'embed', src: scUrl };
+            }
+
+            return { type: 'audio', src: cleanUrl };
+        }
+
+        function setupAudio() {
+            const audio = document.getElementById('bgAudio');
+            const embedContainer = document.getElementById('embedMusicContainer');
+            const url = shopSettings.musicUrl ? shopSettings.musicUrl.trim() : '';
+
+            audio.pause();
+            audio.src = "";
+            embedContainer.innerHTML = '';
+            embedContainer.classList.add('hidden');
+            isPlayingAudio = false;
+            updateAudioButtonState(false);
+
+            if (!url) return;
+
+            const parsed = parseEmbedMusicUrl(url);
+
+            if (parsed.type === 'audio') {
+                audio.src = parsed.src;
+                const volumeSlider = document.getElementById('volumeSlider');
+                if (volumeSlider) {
+                    audio.volume = parseFloat(volumeSlider.value);
+                }
+            }
+        }
+
+        function updateAudioButtonState(playing) {
+            const icon = document.getElementById('iconMusicPlay');
+            const text = document.getElementById('textMusicPlay');
+            const btn = document.getElementById('btnToggleMusic');
+            const iconHeaderSpeaker = document.getElementById('iconHeaderSpeaker');
+
+            if (playing) {
+                if (icon && text && btn) {
+                    icon.className = "fa-solid fa-pause";
+                    text.textContent = "ปิดเพลง";
+                    btn.className = "btn-sweet bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 text-white text-xs font-semibold px-5 py-2.5 rounded-full shadow-xs flex items-center space-x-1.5 shrink-0";
+                }
+                if (iconHeaderSpeaker) {
+                    iconHeaderSpeaker.className = "fa-solid fa-volume-high text-sm animate-pulse text-yellow-200";
+                }
+            } else {
+                if (icon && text && btn) {
+                    icon.className = "fa-solid fa-play";
+                    text.textContent = "เปิดเพลง";
+                    btn.className = "btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white text-xs font-semibold px-5 py-2.5 rounded-full shadow-xs flex items-center space-x-1.5 shrink-0";
+                }
+                if (iconHeaderSpeaker) {
+                    iconHeaderSpeaker.className = "fa-solid fa-volume-xmark text-sm";
+                }
+            }
+        }
+
+        function toggleAudio() {
+            const audio = document.getElementById('bgAudio');
+            const embedContainer = document.getElementById('embedMusicContainer');
+            const url = shopSettings.musicUrl ? shopSettings.musicUrl.trim() : '';
+
+            if (!url) {
+                showToast("กรุณากรอก URL ลิ้งค์เพลงในหน้าแอดมินก่อน", "error");
+                return;
+            }
+
+            const parsed = parseEmbedMusicUrl(url);
+
+            if (parsed.type === 'embed') {
+                if (isPlayingAudio) {
+                    embedContainer.innerHTML = '';
+                    embedContainer.classList.add('hidden');
+                    isPlayingAudio = false;
+                    updateAudioButtonState(false);
+                    showToast("ปิดเสียงเพลงบรรยากาศแล้ว", "success");
+                } else {
+                    embedContainer.innerHTML = `<iframe id="musicIframe" src="${parsed.src}" allow="autoplay; encrypted-media" style="width:1px;height:1px;opacity:0;position:absolute;pointer-events:none;"></iframe>`;
+                    embedContainer.classList.remove('hidden');
+                    isPlayingAudio = true;
+                    updateAudioButtonState(true);
+                    showToast("เปิดเสียงเพลงบรรยากาศแล้ว", "success");
+                }
+            } else {
+                if (isPlayingAudio) {
+                    audio.pause();
+                    isPlayingAudio = false;
+                    updateAudioButtonState(false);
+                    showToast("ปิดเสียงเพลงบรรยากาศแล้ว", "success");
+                } else {
+                    if (!audio.src || audio.src !== parsed.src) {
+                        audio.src = parsed.src;
+                    }
+                    const volumeSlider = document.getElementById('volumeSlider');
+                    if (volumeSlider) {
+                        audio.volume = parseFloat(volumeSlider.value);
+                    }
+                    
+                    audio.play().then(() => {
+                        isPlayingAudio = true;
+                        updateAudioButtonState(true);
+                        showToast("เปิดเสียงเพลงบรรยากาศแล้ว", "success");
+                    }).catch(err => {
+                        showToast("เกิดข้อผิดพลาดในการเล่นเสียง โปรดตรวจสอบลิงก์เพลง", "error");
+                    });
+                }
+            }
+        }
+
+        function changeVolume(val) {
+            const audio = document.getElementById('bgAudio');
+            audio.volume = parseFloat(val);
+        }
+
+        // ================= ROLE & NAVIGATION SWITCH =================
+        function setRole(role) {
+            if (role === 'admin' && !isAdminLoggedIn) {
+                openAdminLoginModal();
+                return;
+            }
+            applyRoleChange(role);
+        }
+
+        function applyRoleChange(role) {
+            currentRole = role;
+            const btnCustomer = document.getElementById('btnRoleCustomer');
+            const btnAdmin = document.getElementById('btnRoleAdmin');
+            const customerView = document.getElementById('customerView');
+            const adminView = document.getElementById('adminView');
+            const customerNav = document.getElementById('customerNav');
+            const announcementBubbles = document.getElementById('announcementBubblesContainer');
+
+            if (role === 'customer') {
+                btnCustomer.className = "px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold transition duration-200 bg-white text-sky-500 shadow-sm";
+                btnAdmin.className = "px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold transition duration-200 text-white hover:bg-white/20";
+                customerView.classList.remove('hidden');
+                adminView.classList.add('hidden');
+                customerNav.classList.remove('hidden');
+                if (announcementBubbles) announcementBubbles.classList.remove('hidden');
+                switchTab('customer-pay');
+            } else {
+                btnAdmin.className = "px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold transition duration-200 bg-white text-sky-500 shadow-sm";
+                btnCustomer.className = "px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold transition duration-200 text-white hover:bg-white/20";
+                adminView.classList.remove('hidden');
+                customerView.classList.add('hidden');
+                customerNav.classList.add('hidden');
+                if (announcementBubbles) announcementBubbles.classList.add('hidden');
+                switchAdminTab('slips');
+            }
+        }
+
+        function switchTab(tabName) {
+            const tabs = ['customer-pay', 'customer-points', 'customer-contact'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`sec-${t}`);
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    sec.classList.remove('hidden');
+                    btn.className = "py-3 px-4 border-b-2 border-sky-400 font-semibold text-sky-600 text-sm flex items-center space-x-2 transition rounded-t-xl";
+                } else {
+                    sec.classList.add('hidden');
+                    btn.className = "py-3 px-4 border-b-2 border-transparent font-medium text-slate-500 hover:text-sky-500 text-sm flex items-center space-x-2 transition rounded-t-xl";
+                }
+            });
+        }
+
+        function switchAdminTab(tabName) {
+            const tabs = ['slips', 'points', 'bubbles', 'settings'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`sec-admin-${t}`);
+                const btn = document.getElementById(`btnAdminTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === tabName) {
+                    sec.classList.remove('hidden');
+                    if (btn) btn.className = "btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs flex items-center space-x-2";
+                } else {
+                    sec.classList.add('hidden');
+                    if (btn) btn.className = "btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2";
+                }
+            });
+        }
+
+        // ================= DYNAMIC ANNOUNCEMENT BUBBLES =================
+        function renderCustomerBubbles() {
+            const container = document.getElementById('announcementBubblesContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const activeBubbles = shopSettings.bubbles.filter(b => b.active && b.text.trim() !== '');
+
+            activeBubbles.forEach(b => {
+                const span = document.createElement('span');
+                span.className = "bubble-pulse bg-white/90 border-2 border-sky-200 text-sky-700 px-4 py-1.5 rounded-full text-xs font-semibold shadow-xs flex items-center gap-1.5 backdrop-blur-sm cute-font text-sm";
+                span.innerHTML = `<i class="fa-solid fa-sparkles text-sky-400 text-xs"></i> ${escapeHtml(b.text)}`;
+                container.appendChild(span);
+            });
+        }
+
+        function renderAdminBubblesInputs() {
+            const container = document.getElementById('adminBubblesContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (shopSettings.bubbles.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400">ยังไม่มีบับเบิ้ลข้อความ</p>`;
+                return;
+            }
+
+            shopSettings.bubbles.forEach((b, index) => {
+                const div = document.createElement('div');
+                div.className = "p-3 bg-sky-50/40 rounded-2xl border border-sky-100 flex flex-col sm:flex-row items-center gap-3";
+                div.innerHTML = `
+                    <div class="flex-grow w-full">
+                        <input type="text" value="${escapeHtml(b.text)}" onchange="updateBubbleText(${index}, this.value)" placeholder="กรอกข้อความบับเบิ้ล..." class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                    </div>
+                    <div class="flex items-center space-x-3 shrink-0">
+                        <label class="flex items-center cursor-pointer text-xs font-medium text-slate-600">
+                            <input type="checkbox" ${b.active ? 'checked' : ''} onchange="toggleBubbleStatus(${index})" class="accent-sky-400 mr-1.5 rounded">
+                            แสดงผล
+                        </label>
+                        <button type="button" onclick="removeBubbleRow(${index})" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1">
+                            <i class="fa-solid fa-trash-can"></i> ลบ
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addNewBubbleRow() {
+            shopSettings.bubbles.push({
+                id: "b_" + Date.now(),
+                text: "✨ ข้อความแจ้งเตือนใหม่...",
+                active: true
+            });
+            renderAdminBubblesInputs();
+            renderCustomerBubbles();
+        }
+
+        function removeBubbleRow(index) {
+            shopSettings.bubbles.splice(index, 1);
+            renderAdminBubblesInputs();
+            renderCustomerBubbles();
+        }
+
+        function updateBubbleText(index, val) {
+            if (shopSettings.bubbles[index]) {
+                shopSettings.bubbles[index].text = val;
+                renderCustomerBubbles();
+            }
+        }
+
+        function toggleBubbleStatus(index) {
+            if (shopSettings.bubbles[index]) {
+                shopSettings.bubbles[index].active = !shopSettings.bubbles[index].active;
+                renderCustomerBubbles();
+            }
+        }
+
+        // ================= BANK ACCOUNTS MANAGEMENT (ADD/REMOVE) =================
+        function renderCustomerBankAccounts() {
+            const container = document.getElementById('customerBankAccountsList');
+            container.innerHTML = '';
+
+            if (shopSettings.bankAccounts.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400">ยังไม่มีข้อมูลบัญชีธนาคาร</p>`;
+                return;
+            }
+
+            shopSettings.bankAccounts.forEach((acc, idx) => {
+                const div = document.createElement('div');
+                div.className = "bg-sky-50/60 p-4 rounded-2xl border border-sky-100 space-y-2";
+                div.innerHTML = `
+                    <div>
+                        <span class="text-xs text-slate-400 block">ช่องทางการโอนเงิน #${idx + 1}</span>
+                        <span class="font-semibold text-sky-600 text-sm">${escapeHtml(acc.channel)}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block">ชื่อบัญชี</span>
+                        <span class="font-semibold text-slate-700 text-sm">${escapeHtml(acc.name)}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block">เลขที่บัญชี</span>
+                        <div class="flex items-center space-x-2 mt-0.5">
+                            <span class="font-mono font-bold text-lg text-sky-600 tracking-wider">${escapeHtml(acc.number)}</span>
+                            <button onclick="copyToClipboard('${escapeHtml(acc.number)}', 'คัดลอกเลขบัญชีเรียบร้อยแล้ว')" class="btn-sweet bg-white hover:bg-sky-50 text-sky-500 px-3 py-1 rounded-full border border-sky-200 text-xs font-medium shadow-xs transition">
+                                <i class="fa-regular fa-copy"></i> คัดลอก
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderAdminBankAccountsInputs() {
+            const container = document.getElementById('adminBankAccountsContainer');
+            container.innerHTML = '';
+
+            shopSettings.bankAccounts.forEach((acc, index) => {
+                const card = document.createElement('div');
+                card.className = "p-3 bg-sky-50/40 rounded-2xl border border-sky-100 space-y-2 relative";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs font-semibold text-sky-600">บัญชีที่ ${index + 1}</span>
+                        ${shopSettings.bankAccounts.length > 1 ? `
+                            <button type="button" onclick="removeBankAccountRow(${index})" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-0.5">
+                                <i class="fa-solid fa-trash-can"></i> ลบ
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-2">
+                        <input type="text" placeholder="ช่องทาง/ธนาคาร" value="${escapeHtml(acc.channel)}" onchange="updateBankAccountField(${index}, 'channel', this.value)" required class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
+                        <input type="text" placeholder="ชื่อบัญชี" value="${escapeHtml(acc.name)}" onchange="updateBankAccountField(${index}, 'name', this.value)" required class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
+                        <input type="text" placeholder="เลขที่บัญชี" value="${escapeHtml(acc.number)}" onchange="updateBankAccountField(${index}, 'number', this.value)" required class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addNewBankAccountRow() {
+            shopSettings.bankAccounts.push({
+                id: "acc_" + Date.now(),
+                channel: "ธนาคารใหม่",
+                name: shopSettings.shopName,
+                number: "000-0-00000-0"
+            });
+            renderAdminBankAccountsInputs();
+        }
+
+        function removeBankAccountRow(index) {
+            if (shopSettings.bankAccounts.length <= 1) return;
+            shopSettings.bankAccounts.splice(index, 1);
+            renderAdminBankAccountsInputs();
+        }
+
+        function updateBankAccountField(index, field, value) {
+            if (shopSettings.bankAccounts[index]) {
+                shopSettings.bankAccounts[index][field] = value.trim();
+            }
+        }
+
+        // ================= CUSTOMER ACTIONS =================
+        function copyRemarkText() {
+            const remark = shopSettings.remarkText;
+            copyToClipboard(remark, "คัดลอกข้อความกำกับสลิปเรียบร้อยแล้ว");
+        }
+
+        function copyToClipboard(text, successMsg) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            showToast(successMsg, "success");
+        }
+
+        function previewSlipImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            compressImage(file, 800, 800, 0.7, function (compressedBase64) {
+                selectedSlipImageBase64 = compressedBase64;
+                const previewImg = document.getElementById('slipPreviewImage');
+                const placeholder = document.getElementById('uploadPlaceholder');
+                previewImg.src = compressedBase64;
+                previewImg.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            });
+        }
+
+        function handleCustomerSubmitSlip(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('customerNameInput').value.trim();
+            const pinInput = document.getElementById('customerPinInput').value.trim();
+            const amountInput = parseFloat(document.getElementById('transferAmountInput').value);
+
+            if (!nameInput) {
+                showToast("กรุณากรอกชื่อสำหรับสะสมแต้ม", "error");
+                return;
+            }
+            if (!pinInput || !/^\d{4}$/.test(pinInput)) {
+                showToast("กรุณากำหนดรหัส PIN ตัวเลข 4 หลัก", "error");
+                return;
+            }
+            if (!amountInput || amountInput <= 0) {
+                showToast("กรุณากรอกยอดเงินให้ถูกต้อง", "error");
+                return;
+            }
+            if (!selectedSlipImageBase64) {
+                showToast("กรุณาแนบรูปภาพสลิปการโอนเงิน", "error");
+                return;
+            }
+
+            // Anti-Duplicate & Impersonation Guard:
+            // If name already exists in system, PIN must match the existing account's PIN
+            const existingCustomerSlip = slipRecords.find(s => s.customerName.toLowerCase() === nameInput.toLowerCase());
+            if (existingCustomerSlip && existingCustomerSlip.customerPin !== pinInput) {
+                showToast("ชื่อนี้ถูกใช้ไปแล้วและรหัส PIN ไม่ตรงกัน! กรุณาตั้งชื่อใหม่ที่ไม่ซ้ำ", "error");
+                return;
+            }
+
+            const rate = shopSettings.amountPerPoint || 100;
+            const calculatedPoints = Math.floor(amountInput / rate);
+
+            const newSlip = {
+                id: "slip_" + Date.now(),
+                customerName: nameInput,
+                customerPin: pinInput,
+                amount: amountInput,
+                pointsCalculated: calculatedPoints,
+                slipImage: selectedSlipImageBase64,
+                timestamp: new Date().toLocaleString('th-TH'),
+                status: "pending"
+            };
+
+            slipRecords.unshift(newSlip);
+
+            document.getElementById('slipForm').reset();
+            document.getElementById('customerNameInput').value = '';
+            document.getElementById('customerPinInput').value = '';
+            document.getElementById('slipPreviewImage').classList.add('hidden');
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+            document.getElementById('duplicateNameNotice').classList.add('hidden');
+            selectedSlipImageBase64 = '';
+
+            showToast("ส่งสลิปเรียบร้อยแล้ว! โปรดจำชื่อและ PIN 4 หลักไว้เช็กแต้มค่ะ", "success");
+
+            updatePendingBadge();
+            renderAdminSlipsList();
+            renderAdminCustomerPointsTable();
+        }
+
+        function searchCustomerPoints() {
+            const query = document.getElementById('searchCustomerPointsInput').value.trim();
+            const pinQuery = document.getElementById('searchCustomerPinInput').value.trim();
+
+            if (!query || !pinQuery) {
+                showToast("กรุณากรอกทั้งชื่อและรหัส PIN 4 หลักของคุณ", "error");
+                return;
+            }
+
+            const pointsCard = document.getElementById('pointsResultCard');
+            const historySec = document.getElementById('customerHistorySection');
+            const resultName = document.getElementById('resultCustomerName');
+            const resultPoints = document.getElementById('resultCustomerPoints');
+            const historyTable = document.getElementById('customerHistoryTable');
+
+            // Verify both Name and 4-digit PIN match
+            const customerMatches = slipRecords.filter(s => s.customerName.toLowerCase() === query.toLowerCase());
+
+            if (customerMatches.length === 0) {
+                pointsCard.classList.add('hidden');
+                historySec.classList.add('hidden');
+                showToast("ไม่พบรายชื่อนี้ในระบบ", "error");
+                return;
+            }
+
+            const isPinValid = customerMatches.some(s => s.customerPin === pinQuery);
+            if (!isPinValid) {
+                pointsCard.classList.add('hidden');
+                historySec.classList.add('hidden');
+                showToast("รหัส PIN 4 หลักไม่ถูกต้อง! ไม่สามารถดูข้อมูลของผู้อื่นได้", "error");
+                return;
+            }
+
+            const verifiedMatches = customerMatches.filter(s => s.customerPin === pinQuery);
+
+            let totalPoints = 0;
+            verifiedMatches.forEach(s => {
+                if (s.status === 'approved') {
+                    totalPoints += s.pointsCalculated;
+                }
+            });
+
+            resultName.textContent = `คุณ ${verifiedMatches[0].customerName}`;
+            resultPoints.textContent = totalPoints;
+
+            pointsCard.classList.remove('hidden');
+
+            historyTable.innerHTML = '';
+            verifiedMatches.forEach(s => {
+                let statusBadge = '';
+                if (s.status === 'approved') {
+                    statusBadge = `<span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-[10px] font-semibold">อนุมัติแล้ว (+${s.pointsCalculated} แต้ม)</span>`;
+                } else if (s.status === 'pending') {
+                    statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[10px] font-semibold">รอตรวจสอบ</span>`;
+                } else {
+                    statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full text-[10px] font-semibold">ปฏิเสธ</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3.5">${s.timestamp}</td>
+                    <td class="p-3.5 font-semibold text-slate-700">฿${s.amount.toLocaleString()}</td>
+                    <td class="p-3.5 font-bold text-sky-600">+${s.status === 'approved' ? s.pointsCalculated : 0}</td>
+                    <td class="p-3.5">${statusBadge}</td>
+                `;
+                historyTable.appendChild(tr);
+            });
+
+            historySec.classList.remove('hidden');
+            showToast("ยืนยันตัวตนสำเร็จ แสดงข้อมูลแต้มสะสมส่วนตัว", "success");
+        }
+
+        // ================= ADMIN ACTIONS =================
+        function updatePendingBadge() {
+            const pendingCount = slipRecords.filter(s => s.status === 'pending').length;
+            const badge = document.getElementById('pendingBadge');
+            badge.textContent = pendingCount;
+            if (pendingCount > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderAdminSlipsList() {
+            const container = document.getElementById('slipsListContainer');
+            container.innerHTML = '';
+
+            if (slipRecords.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-400">ไม่มีรายการแจ้งโอนเงิน</div>`;
+                return;
+            }
+
+            slipRecords.forEach(slip => {
+                const item = document.createElement('div');
+                item.className = "border border-sky-100 rounded-2xl p-4 bg-sky-50/30 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between";
+
+                let statusText = '';
+                if (slip.status === 'pending') {
+                    statusText = `<span class="bg-amber-100 text-amber-800 border border-amber-200 text-xs px-3 py-1 rounded-full font-medium">รอการตรวจสอบ</span>`;
+                } else if (slip.status === 'approved') {
+                    statusText = `<span class="bg-green-100 text-green-800 border border-green-200 text-xs px-3 py-1 rounded-full font-medium">อนุมัติเรียบร้อย (+${slip.pointsCalculated} แต้ม)</span>`;
+                } else {
+                    statusText = `<span class="bg-rose-100 text-rose-800 border border-rose-200 text-xs px-3 py-1 rounded-full font-medium">ปฏิเสธรายการ</span>`;
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <img src="${slip.slipImage}" onclick="openImageModal('${slip.slipImage}')" class="w-16 h-20 object-cover rounded-xl border-2 border-sky-200 shadow-xs cursor-pointer hover:opacity-90 transition" title="คลิกเพื่อดูรูปใหญ่">
+                        <div class="space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-bold text-slate-800 text-sm">${escapeHtml(slip.customerName)} <span class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-mono">PIN: ${escapeHtml(slip.customerPin || '----')}</span></h4>
+                                ${statusText}
+                            </div>
+                            <p class="text-xs text-slate-600">ยอดเงินโอน: <strong class="text-sky-600 text-sm">฿${slip.amount.toLocaleString()}</strong> (แต้มที่จะได้รับ: ${slip.pointsCalculated} แต้ม)</p>
+                            <p class="text-[11px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${slip.timestamp}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full md:w-auto justify-end border-t border-sky-100 md:border-t-0 pt-3 md:pt-0">
+                        ${slip.status === 'pending' ? `
+                            <button onclick="approveSlip('${slip.id}')" class="btn-sweet bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs transition flex items-center space-x-1">
+                                <i class="fa-solid fa-check"></i>
+                                <span>อนุมัติ & ให้แต้ม</span>
+                            </button>
+                            <button onclick="rejectSlip('${slip.id}')" class="btn-sweet bg-rose-400 hover:bg-rose-500 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs transition flex items-center space-x-1">
+                                <i class="fa-solid fa-xmark"></i>
+                                <span>ปฏิเสธ</span>
+                            </button>
+                        ` : `
+                            <button onclick="deleteSlip('${slip.id}')" class="text-slate-400 hover:text-rose-500 text-xs px-3 py-1.5 rounded-full hover:bg-rose-50 transition">
+                                <i class="fa-solid fa-trash-can"></i> ลบรายการ
+                            </button>
+                        `}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function approveSlip(slipId) {
+            const slip = slipRecords.find(s => s.id === slipId);
+            if (slip) {
+                slip.status = 'approved';
+                showToast(`อนุมัติสลิปของคุณ ${slip.customerName} เรียบร้อยแล้ว (+${slip.pointsCalculated} แต้ม)`, "success");
+                updatePendingBadge();
+                renderAdminSlipsList();
+                renderAdminCustomerPointsTable();
+            }
+        }
+
+        function rejectSlip(slipId) {
+            const slip = slipRecords.find(s => s.id === slipId);
+            if (slip) {
+                slip.status = 'rejected';
+                showToast(`ปฏิเสธรายการสลิปของคุณ ${slip.customerName} เรียบร้อยแล้ว`, "success");
+                updatePendingBadge();
+                renderAdminSlipsList();
+                renderAdminCustomerPointsTable();
+            }
+        }
+
+        function deleteSlip(slipId) {
+            slipRecords = slipRecords.filter(s => s.id !== slipId);
+            showToast("ลบรายการสลิปเรียบร้อยแล้ว", "success");
+            updatePendingBadge();
+            renderAdminSlipsList();
+            renderAdminCustomerPointsTable();
+        }
+
+        function getCustomerAggregatedData() {
+            const customerMap = {};
+
+            slipRecords.forEach(s => {
+                const key = s.customerName.toLowerCase();
+                if (!customerMap[key]) {
+                    customerMap[key] = {
+                        name: s.customerName,
+                        pin: s.customerPin || '----',
+                        totalAmount: 0,
+                        points: 0
+                    };
+                }
+                if (s.status === 'approved') {
+                    customerMap[key].totalAmount += s.amount;
+                    customerMap[key].points += s.pointsCalculated;
+                }
+            });
+
+            return customerMap;
+        }
+
+        function renderAdminCustomerPointsTable() {
+            const tbody = document.getElementById('adminCustomerPointsTable');
+            const searchVal = document.getElementById('adminSearchCustomerInput').value.toLowerCase().trim();
+            tbody.innerHTML = '';
+
+            const customerMap = getCustomerAggregatedData();
+            const keys = Object.keys(customerMap).filter(k => k.includes(searchVal));
+
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ไม่พบข้อมูลลูกค้า</td></tr>`;
+                return;
+            }
+
+            keys.forEach(k => {
+                const cust = customerMap[k];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3.5 font-semibold text-slate-800">${escapeHtml(cust.name)}</td>
+                    <td class="p-3.5 font-mono text-slate-500">${escapeHtml(cust.pin)}</td>
+                    <td class="p-3.5">฿${cust.totalAmount.toLocaleString()}</td>
+                    <td class="p-3.5 font-bold text-sky-600">${cust.points} แต้ม</td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="openEditPointsModal('${cust.name}', ${cust.points})" class="btn-sweet bg-sky-50 hover:bg-sky-100 text-sky-600 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-sky-200 transition">
+                            <i class="fa-solid fa-pen-to-square mr-1"></i> แก้ไขแต้ม
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openEditPointsModal(name, currentPoints) {
+            editingCustomerKey = name;
+            document.getElementById('editPointsCustomerName').textContent = `ลูกค้า: ${name}`;
+            document.getElementById('newPointsInput').value = currentPoints;
+            document.getElementById('editPointsModal').classList.remove('hidden');
+        }
+
+        function closeEditPointsModal() {
+            document.getElementById('editPointsModal').classList.add('hidden');
+            editingCustomerKey = null;
+        }
+
+        function saveCustomerPoints() {
+            const newPoints = parseInt(document.getElementById('newPointsInput').value);
+            if (isNaN(newPoints) || newPoints < 0) {
+                showToast("กรุณากรอกจำนวนแต้มให้ถูกต้อง", "error");
+                return;
+            }
+
+            const approvedSlips = slipRecords.filter(s => s.customerName.toLowerCase() === editingCustomerKey.toLowerCase() && s.status === 'approved');
+            
+            if (approvedSlips.length > 0) {
+                approvedSlips.forEach((s, idx) => {
+                    if (idx === 0) {
+                        s.pointsCalculated = newPoints;
+                    } else {
+                        s.pointsCalculated = 0;
+                    }
+                });
+            } else {
+                const refSlip = slipRecords.find(s => s.customerName.toLowerCase() === editingCustomerKey.toLowerCase());
+                slipRecords.unshift({
+                    id: "manual_" + Date.now(),
+                    customerName: editingCustomerKey,
+                    customerPin: refSlip ? refSlip.customerPin : "0000",
+                    amount: 0,
+                    pointsCalculated: newPoints,
+                    slipImage: "https://placehold.co/400x400/e0f2fe/0284c7?text=Manual+Point+Adjust",
+                    timestamp: new Date().toLocaleString('th-TH'),
+                    status: "approved"
+                });
+            }
+
+            showToast("ปรับปรุงแต้มสะสมเรียบร้อยแล้ว", "success");
+            closeEditPointsModal();
+            renderAdminCustomerPointsTable();
+            renderAdminSlipsList();
+        }
+
+        function previewAdminQrImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                openCropModal(e.target.result, 'qr');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function previewAdminLogoImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                openCropModal(e.target.result, 'logo');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleSaveShopSettings(e) {
+            e.preventDefault();
+
+            shopSettings.shopName = document.getElementById('editShopName').value.trim();
+            
+            const emailVal = document.getElementById('editAdminEmail').value.trim();
+            if (emailVal) {
+                shopSettings.adminEmail = emailVal;
+                document.getElementById('loggedInAdminEmailText').textContent = emailVal;
+            }
+
+            const passcodeVal = document.getElementById('editAdminPasscode').value.trim();
+            if (passcodeVal) {
+                shopSettings.adminPasscode = passcodeVal;
+            }
+
+            const pointRate = parseFloat(document.getElementById('editAmountPerPoint').value);
+            if (!isNaN(pointRate) && pointRate > 0) {
+                shopSettings.amountPerPoint = pointRate;
+            }
+
+            shopSettings.remarkText = document.getElementById('editRemarkText').value.trim();
+            shopSettings.contactLine = document.getElementById('editContactLine').value.trim();
+            shopSettings.contactLineUrl = document.getElementById('editContactLineUrl').value.trim();
+            shopSettings.contactPhone = document.getElementById('editContactPhone').value.trim();
+            shopSettings.contactPhoneUrl = document.getElementById('editContactPhoneUrl').value.trim();
+            shopSettings.contactFacebook = document.getElementById('editContactFacebook').value.trim();
+            shopSettings.contactFacebookUrl = document.getElementById('editContactFacebookUrl').value.trim();
+
+            const musicUrlInput = document.getElementById('editMusicUrl').value.trim();
+            if (musicUrlInput !== shopSettings.musicUrl) {
+                shopSettings.musicUrl = musicUrlInput;
+                setupAudio();
+            }
+
+            if (tempAdminQrBase64) {
+                shopSettings.qrImage = tempAdminQrBase64;
+                tempAdminQrBase64 = '';
+            }
+
+            if (tempAdminLogoBase64) {
+                shopSettings.shopLogo = tempAdminLogoBase64;
+                tempAdminLogoBase64 = '';
+            }
+
+            renderSettingsUI();
+            showToast("บันทึกข้อมูลตั้งค่าร้านค้าเรียบร้อยแล้ว", "success");
+        }
+
+        function renderSettingsUI() {
+            // Customer View Elements
+            document.getElementById('headerShopName').textContent = shopSettings.shopName;
+            document.getElementById('headerShopLogo').src = shopSettings.shopLogo;
+            document.getElementById('footerShopName').textContent = shopSettings.shopName;
+            renderCustomerBankAccounts();
+
+            document.getElementById('displayRemarkText').textContent = shopSettings.remarkText;
+            document.getElementById('displayQrImage').src = shopSettings.qrImage;
+            document.getElementById('displayPointsRatioInfo').textContent = `✨ ทุก ${shopSettings.amountPerPoint || 100} บาท = 1 แต้ม ✨`;
+
+            document.getElementById('contactShopTitle').textContent = shopSettings.shopName;
+            document.getElementById('contactShopLogo').src = shopSettings.shopLogo;
+            document.getElementById('displayContactLine').textContent = shopSettings.contactLine;
+            document.getElementById('linkContactLine').href = shopSettings.contactLineUrl || '#';
+
+            document.getElementById('displayContactPhone').textContent = shopSettings.contactPhone;
+            document.getElementById('linkContactPhone').href = shopSettings.contactPhoneUrl || '#';
+
+            document.getElementById('displayContactFacebook').textContent = shopSettings.contactFacebook;
+            document.getElementById('linkContactFacebook').href = shopSettings.contactFacebookUrl || '#';
+
+            // Admin Input Elements
+            document.getElementById('editShopName').value = shopSettings.shopName;
+            document.getElementById('editAdminEmail').value = shopSettings.adminEmail || "admin@smartpay.com";
+            document.getElementById('editAdminPasscode').value = shopSettings.adminPasscode || "1234";
+            document.getElementById('adminShopLogoPreview').src = shopSettings.shopLogo;
+            document.getElementById('editAmountPerPoint').value = shopSettings.amountPerPoint || 100;
+            renderAdminBankAccountsInputs();
+
+            document.getElementById('editRemarkText').value = shopSettings.remarkText;
+            document.getElementById('adminQrPreview').src = shopSettings.qrImage;
+            document.getElementById('editContactLine').value = shopSettings.contactLine;
+            document.getElementById('editContactLineUrl').value = shopSettings.contactLineUrl || '';
+            document.getElementById('editContactPhone').value = shopSettings.contactPhone;
+            document.getElementById('editContactPhoneUrl').value = shopSettings.contactPhoneUrl || '';
+            document.getElementById('editContactFacebook').value = shopSettings.contactFacebook;
+            document.getElementById('editContactFacebookUrl').value = shopSettings.contactFacebookUrl || '';
+            document.getElementById('editMusicUrl').value = shopSettings.musicUrl || '';
+        }
+
+        // ================= MODAL & TOAST UTILITIES =================
+        function openImageModal(imgSrc) {
+            document.getElementById('modalImageSrc').src = imgSrc;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+
+        function showToast(msg, type = "success") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = msg;
+
+            if (type === "success") {
+                toastIcon.className = "fa-solid fa-circle-check text-sky-400 text-xl";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-xmark text-rose-500 text-xl";
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
