@@ -79,7 +79,7 @@
                     <!-- Shop Name -->
                     <h1 class="font-bold text-xl leading-tight tracking-wide drop-shadow-sm cute-font text-white" id="headerShopName">ร้านค้าสมาร์ทเพย์</h1>
                     <p class="text-xs text-sky-50 flex items-center gap-1">
-                        <i class="fa-solid fa-sparkles text-[10px] text-yellow-200"></i> ระบบโอนเงิน & สะสมแต้มพาสเทล ✨
+                        <i class="fa-solid fa-sparkles text-[10px] text-yellow-200"></i> <span id="headerSubtitleText">ระบบโอนเงิน & สะสมแต้มพาสเทล ✨</span>
                     </p>
                 </div>
             </div>
@@ -108,15 +108,15 @@
         <div class="max-w-5xl mx-auto px-4 flex justify-around md:justify-center md:space-x-8">
             <button onclick="switchTab('customer-pay')" id="tab-customer-pay" class="py-3 px-4 border-b-2 border-sky-400 font-semibold text-sky-600 text-sm flex items-center space-x-2 transition rounded-t-xl">
                 <i class="fa-solid fa-qrcode text-sky-400"></i>
-                <span>โอนเงิน / ชำระเงิน</span>
+                <span id="navTabPayText">โอนเงิน / ชำระเงิน</span>
             </button>
             <button onclick="switchTab('customer-points')" id="tab-customer-points" class="py-3 px-4 border-b-2 border-transparent font-medium text-slate-500 hover:text-sky-500 text-sm flex items-center space-x-2 transition rounded-t-xl">
                 <i class="fa-solid fa-star text-amber-400"></i>
-                <span>เช็กแต้มสะสม</span>
+                <span id="navTabPointsText">เช็กแต้มสะสม</span>
             </button>
             <button onclick="switchTab('customer-contact')" id="tab-customer-contact" class="py-3 px-4 border-b-2 border-transparent font-medium text-slate-500 hover:text-sky-500 text-sm flex items-center space-x-2 transition rounded-t-xl">
                 <i class="fa-solid fa-comments text-sky-400"></i>
-                <span>ติดต่อร้านค้า</span>
+                <span id="navTabContactText">ติดต่อร้านค้า</span>
             </button>
         </div>
     </div>
@@ -144,18 +144,18 @@
                 <div class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70">
                     <h2 class="text-base font-semibold text-sky-600 flex items-center mb-3">
                         <span class="bg-gradient-to-r from-sky-400 to-sky-300 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold mr-2.5 shadow-sm">1</span>
-                        กรอกชื่อ & ตั้งรหัส PIN ส่วนตัวสำหรับสะสมแต้ม
+                        <span id="step1TitleText">กรอกชื่อ & ตั้งรหัส PIN ส่วนตัวสำหรับสะสมแต้ม</span>
                     </h2>
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
-                            <label for="customerNameInput" class="block text-xs font-medium text-slate-500 mb-1.5">ชื่อที่ใช้สะสมแต้ม (ห้ามซ้ำกับผู้อื่น) <span class="text-sky-400">*</span></label>
+                            <label for="customerNameInput" class="block text-xs font-medium text-slate-500 mb-1.5"><span id="step1NameLabelText">ชื่อที่ใช้สะสมแต้ม (ห้ามซ้ำกับผู้อื่น)</span> <span class="text-sky-400">*</span></label>
                             <div class="relative">
                                 <input type="text" id="customerNameInput" oninput="checkDuplicateCustomerName()" placeholder="เช่น น้องฟ้า_01 หรือ สมชาย_88" class="w-full pl-10 pr-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 text-sm bg-sky-50/20">
                                 <i class="fa-solid fa-heart text-sky-300 absolute left-4 top-3.5 text-sm"></i>
                             </div>
                         </div>
                         <div>
-                            <label for="customerPinInput" class="block text-xs font-medium text-slate-500 mb-1.5">รหัส PIN 4 หลักส่วนตัว (ป้องกันคนอื่นแอบดูประวัติ) <span class="text-sky-400">*</span></label>
+                            <label for="customerPinInput" class="block text-xs font-medium text-slate-500 mb-1.5"><span id="step1PinLabelText">รหัส PIN 4 หลักส่วนตัว (ป้องกันคนอื่นแอบดูประวัติ)</span> <span class="text-sky-400">*</span></label>
                             <div class="relative">
                                 <input type="password" id="customerPinInput" maxlength="4" pattern="\d{4}" placeholder="เช่น 1234" class="w-full pl-10 pr-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 text-sm bg-sky-50/20 tracking-widest font-bold">
                                 <i class="fa-solid fa-key text-sky-300 absolute left-4 top-3.5 text-sm"></i>
@@ -170,7 +170,7 @@
                             <span>ชื่อนี้มีผู้ใช้งานแล้ว หากคุณเป็นเจ้าของชื่อนี้ กรุณากรอกรหัส <strong>PIN 4 หลักเดิม</strong> ที่เคยตั้งไว้ให้ถูกต้องเพื่อสะสมแต้มต่อ (หากไม่ใช่เจ้าของ กรุณาตั้งชื่อใหม่ที่ไม่ซ้ำค่ะ)</span>
                         </div>
                     </div>
-                    <p class="text-[11px] text-sky-400 mt-2 pl-2">* จดจำ "ชื่อ" และ "รหัส PIN 4 หลัก" ของคุณไว้ใช้เปิดดูแต้มสะสมและประวัติการโอนเงินส่วนตัว</p>
+                    <p id="step1HelperText" class="text-[11px] text-sky-400 mt-2 pl-2">* จดจำ "ชื่อ" และ "รหัส PIN 4 หลัก" ของคุณไว้ใช้เปิดดูแต้มสะสมและประวัติการโอนเงินส่วนตัว</p>
                 </div>
 
                 <!-- Step 2: Bank & QR Info -->
@@ -178,7 +178,7 @@
                     <div class="space-y-4">
                         <h2 class="text-base font-semibold text-sky-600 flex items-center">
                             <span class="bg-gradient-to-r from-sky-400 to-sky-300 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold mr-2.5 shadow-sm">2</span>
-                            ข้อมูลบัญชีธนาคารร้านค้า
+                            <span id="step2TitleText">ข้อมูลบัญชีธนาคารร้านค้า</span>
                         </h2>
                         
                         <!-- List of Bank Accounts -->
@@ -190,7 +190,7 @@
                         <div class="bg-gradient-to-r from-sky-50 to-blue-50 p-4 rounded-2xl border border-sky-100">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <span class="text-xs font-semibold text-sky-700 block">ข้อความสำหรับบันทึกช่วยจำ/กำกับสลิป</span>
+                                    <span id="remarkLabelText" class="text-xs font-semibold text-sky-700 block">ข้อความสำหรับบันทึกช่วยจำ/กำกับสลิป</span>
                                     <p id="displayRemarkText" class="text-xs text-sky-600 font-medium mt-1">ชำระค่าสินค้าสะสมแต้ม</p>
                                 </div>
                                 <button onclick="copyRemarkText()" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-xs transition shrink-0 ml-2">
@@ -203,7 +203,7 @@
                     <!-- QR Code Display -->
                     <div class="flex flex-col items-center justify-center p-5 bg-gradient-to-b from-sky-50/60 via-blue-50/40 to-sky-50/60 rounded-3xl border-2 border-dashed border-sky-200 text-center relative">
                         <span class="text-xs font-semibold text-sky-600 mb-3 flex items-center gap-1.5 cute-font text-sm">
-                            <i class="fa-solid fa-qrcode text-sky-400"></i> สแกน QR Code เพื่อชำระเงิน
+                            <i class="fa-solid fa-qrcode text-sky-400"></i> <span id="qrScanTitleText">สแกน QR Code เพื่อชำระเงิน</span>
                         </span>
                         <div class="bg-white p-3.5 rounded-3xl shadow-sm border-2 border-sky-200 max-w-[210px] relative">
                             <img id="displayQrImage" src="https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment" alt="QR Code" class="w-full h-auto rounded-2xl object-contain">
@@ -216,17 +216,17 @@
                 <div class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70">
                     <h2 class="text-base font-semibold text-sky-600 flex items-center mb-4">
                         <span class="bg-gradient-to-r from-sky-400 to-sky-300 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold mr-2.5 shadow-sm">3</span>
-                        ส่งสลิปการโอนเงิน
+                        <span id="step3TitleText">ส่งสลิปการโอนเงิน</span>
                     </h2>
 
                     <form id="slipForm" onsubmit="handleCustomerSubmitSlip(event)" class="space-y-4">
                         <div>
-                            <label for="transferAmountInput" class="block text-xs font-medium text-slate-500 mb-1.5">จำนวนเงินที่โอน (บาท) <span class="text-sky-400">*</span></label>
+                            <label for="transferAmountInput" class="block text-xs font-medium text-slate-500 mb-1.5"><span id="step3AmountLabelText">จำนวนเงินที่โอน (บาท)</span> <span class="text-sky-400">*</span></label>
                             <input type="number" step="0.01" min="1" id="transferAmountInput" placeholder="0.00" required class="w-full px-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 text-sm bg-sky-50/20">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-slate-500 mb-1.5">แนบรูปภาพสลิปการโอนเงิน <span class="text-sky-400">*</span></label>
+                            <label class="block text-xs font-medium text-slate-500 mb-1.5"><span id="step3SlipLabelText">แนบรูปภาพสลิปการโอนเงิน</span> <span class="text-sky-400">*</span></label>
                             <input type="file" id="slipFileInput" accept="image/*" required onchange="previewSlipImage(event)" class="hidden">
                             
                             <label for="slipFileInput" class="border-2 border-dashed border-sky-200 hover:border-sky-300 bg-sky-50/20 hover:bg-sky-50/40 rounded-3xl p-5 flex flex-col items-center justify-center cursor-pointer transition text-center min-h-[140px]">
@@ -234,8 +234,8 @@
                                     <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-400 flex items-center justify-center mx-auto text-xl shadow-xs">
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
-                                    <p class="text-sm font-semibold text-sky-600">คลิกเพื่อเลือกรูปภาพสลิป</p>
-                                    <p class="text-xs text-slate-400">รองรับไฟล์ภาพ JPG, PNG (บีบอัดภาพให้อัตโนมัติ)</p>
+                                    <p id="step3UploadTitleText" class="text-sm font-semibold text-sky-600">คลิกเพื่อเลือกรูปภาพสลิป</p>
+                                    <p id="step3UploadSubText" class="text-xs text-slate-400">รองรับไฟล์ภาพ JPG, PNG (บีบอัดภาพให้อัตโนมัติ)</p>
                                 </div>
                                 <img id="slipPreviewImage" class="hidden max-h-48 rounded-2xl object-contain border-2 border-sky-200 shadow-sm" alt="Slip Preview">
                             </label>
@@ -243,7 +243,7 @@
 
                         <button type="submit" id="btnSubmitSlip" class="btn-sweet w-full bg-gradient-to-r from-sky-400 via-sky-300 to-sky-400 hover:from-sky-500 hover:to-sky-400 text-white font-semibold py-3.5 rounded-full shadow-md transition duration-200 flex items-center justify-center space-x-2 text-base">
                             <i class="fa-solid fa-paper-plane"></i>
-                            <span>ส่งสลิปแจ้งชำระเงิน</span>
+                            <span id="step3SubmitBtnText">ส่งสลิปแจ้งชำระเงิน</span>
                         </button>
                     </form>
                 </div>
@@ -253,7 +253,7 @@
             <section id="sec-customer-points" class="hidden space-y-6">
                 <div class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70">
                     <h2 class="text-base font-semibold text-sky-600 mb-3 flex items-center">
-                        <i class="fa-solid fa-shield-halved text-sky-400 mr-2"></i> ยืนยันชื่อ & รหัส PIN ส่วนตัวเพื่อดูแต้มและประวัติ
+                        <i class="fa-solid fa-shield-halved text-sky-400 mr-2"></i> <span id="pointsPageTitleText">ยืนยันชื่อ & รหัส PIN ส่วนตัวเพื่อดูแต้มและประวัติ</span>
                     </h2>
                     <div class="grid sm:grid-cols-3 gap-3">
                         <div class="sm:col-span-1">
@@ -264,11 +264,11 @@
                         </div>
                         <div class="sm:col-span-1">
                             <button onclick="searchCustomerPoints()" class="btn-sweet w-full bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white px-6 py-3 rounded-full font-semibold text-sm transition shadow-sm">
-                                <i class="fa-solid fa-magnifying-glass mr-1"></i> เข้าดูข้อมูลส่วนตัว
+                                <i class="fa-solid fa-magnifying-glass mr-1"></i> <span id="pointsSearchBtnText">เข้าดูข้อมูลส่วนตัว</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-2 pl-2">* ระบบป้องกันความเป็นส่วนตัว: ต้องใช้ชื่อและรหัส PIN 4 หลักตรงกันจึงจะเปิดดูประวัติการโอนเงินได้</p>
+                    <p id="pointsHelperText" class="text-[11px] text-slate-400 mt-2 pl-2">* ระบบป้องกันความเป็นส่วนตัว: ต้องใช้ชื่อและรหัส PIN 4 หลักตรงกันจึงจะเปิดดูประวัติการโอนเงินได้</p>
                 </div>
 
                 <!-- Points Card Result -->
@@ -279,13 +279,13 @@
                     <div class="relative z-10 space-y-4">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-xs text-sky-50">ข้อมูลผู้สะสมแต้ม</p>
+                                <p id="pointsCardLabelText" class="text-xs text-sky-50">ข้อมูลผู้สะสมแต้ม</p>
                                 <h3 id="resultCustomerName" class="text-2xl font-bold cute-font tracking-wide">คุณสมชาย ใจดี</h3>
                             </div>
-                            <span class="bg-white/30 px-3.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border border-white/40">💖 สมาชิก VIP</span>
+                            <span id="pointsVipBadgeText" class="bg-white/30 px-3.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border border-white/40">💖 สมาชิก VIP</span>
                         </div>
                         <div class="py-2">
-                            <p class="text-xs text-sky-50">แต้มสะสมคงเหลือทั้งหมด</p>
+                            <p id="pointsRemainingLabelText" class="text-xs text-sky-50">แต้มสะสมคงเหลือทั้งหมด</p>
                             <div class="flex items-baseline space-x-2">
                                 <span id="resultCustomerPoints" class="text-5xl font-extrabold tracking-tight drop-shadow-sm">0</span>
                                 <span class="text-lg font-medium text-sky-50">แต้ม</span>
@@ -297,7 +297,7 @@
                 <!-- Customer Slip History -->
                 <div id="customerHistorySection" class="hidden bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70">
                     <h3 class="text-sm font-semibold text-sky-600 mb-3 flex items-center">
-                        <i class="fa-solid fa-clock-rotate-left mr-2 text-sky-400"></i> ประวัติรายการแจ้งโอนเงินส่วนตัวของคุณ
+                        <i class="fa-solid fa-clock-rotate-left mr-2 text-sky-400"></i> <span id="pointsHistoryTitleText">ประวัติรายการแจ้งโอนเงินส่วนตัวของคุณ</span>
                     </h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-600">
@@ -326,7 +326,7 @@
                             <img id="contactShopLogo" src="https://placehold.co/150x150/38bdf8/ffffff?text=Logo" alt="Shop Logo" class="w-full h-full object-cover">
                         </div>
                         <h2 class="text-2xl font-bold text-sky-600 cute-font" id="contactShopTitle">ร้านค้าสมาร์ทเพย์</h2>
-                        <p class="text-xs text-slate-400">หากมีข้อสงสัยเกี่ยวกับยอดเงินหรือแต้มสะสม ติดต่อเราได้ทันทีค่ะ ✨</p>
+                        <p id="contactSubtitleText" class="text-xs text-slate-400">หากมีข้อสงสัยเกี่ยวกับยอดเงินหรือแต้มสะสม ติดต่อเราได้ทันทีค่ะ ✨</p>
                     </div>
 
                     <div class="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto pt-4">
@@ -335,7 +335,7 @@
                                 <i class="fa-brands fa-line"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <span class="text-xs text-emerald-600 font-medium block">LINE Official</span>
+                                <span id="contactLineLabelText" class="text-xs text-emerald-600 font-medium block">LINE Official</span>
                                 <span id="displayContactLine" class="text-sm font-semibold text-slate-700 truncate block">@smartpay_shop</span>
                             </div>
                         </a>
@@ -345,7 +345,7 @@
                                 <i class="fa-solid fa-phone"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <span class="text-xs text-sky-600 font-medium block">เบอร์โทรศัพท์</span>
+                                <span id="contactPhoneLabelText" class="text-xs text-sky-600 font-medium block">เบอร์โทรศัพท์</span>
                                 <span id="displayContactPhone" class="text-sm font-semibold text-slate-700 truncate block">089-123-4567</span>
                             </div>
                         </a>
@@ -355,7 +355,7 @@
                                 <i class="fa-brands fa-facebook"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <span class="text-xs text-blue-600 font-medium block">Facebook Page</span>
+                                <span id="contactFbLabelText" class="text-xs text-blue-600 font-medium block">Facebook Page</span>
                                 <span id="displayContactFacebook" class="text-sm font-semibold text-slate-700 truncate block">SmartPay Shop ร้านค้าออนไลน์</span>
                             </div>
                         </a>
@@ -391,6 +391,10 @@
                 <button onclick="switchAdminTab('bubbles')" id="btnAdminTabBubbles" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
                     <i class="fa-solid fa-comment-dots text-sky-400"></i>
                     <span>จัดการบับเบิ้ลข้อความ</span>
+                </button>
+                <button onclick="switchAdminTab('texts')" id="btnAdminTabTexts" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
+                    <i class="fa-solid fa-pen-nib text-sky-400"></i>
+                    <span>แก้ไขข้อความทุกจุด</span>
                 </button>
                 <button onclick="switchAdminTab('settings')" id="btnAdminTabSettings" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
                     <i class="fa-solid fa-gear text-sky-400"></i>
@@ -464,7 +468,147 @@
                 </div>
             </section>
 
-            <!-- ADMIN TAB 4: Settings -->
+            <!-- ADMIN TAB 4: Full Site Text Editor (แก้ไขข้อความได้ทุกจุดของเว็บไซต์) -->
+            <section id="sec-admin-texts" class="hidden space-y-4">
+                <form onsubmit="handleSaveSiteTexts(event)" class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70 space-y-6">
+                    <div class="flex flex-wrap justify-between items-center gap-2 border-b border-sky-100 pb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-sky-600 flex items-center cute-font text-lg">
+                                <i class="fa-solid fa-pen-nib text-sky-400 mr-2"></i> แก้ไขข้อความและหัวข้อได้ทุกจุดบนเว็บไซต์
+                            </h2>
+                            <p class="text-xs text-slate-400">ปรับเปลี่ยนคำอธิบาย ป้ายเมนู หัวข้อแต่ละขั้นตอน และข้อความท้ายเว็บได้ตามต้องการ</p>
+                        </div>
+                        <button type="button" onclick="resetDefaultSiteTexts()" class="btn-sweet bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-full text-xs font-semibold transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> คืนค่าข้อความเริ่มต้น
+                        </button>
+                    </div>
+
+                    <!-- Group 1: Header & Navigation & Footer -->
+                    <div class="p-4 bg-sky-50/40 rounded-2xl border border-sky-100 space-y-3">
+                        <h3 class="text-xs font-bold text-sky-700 uppercase tracking-wide"><i class="fa-solid fa-window-maximize mr-1"></i> ส่วนหัวเว็บ, แท็บเมนู และท้ายเว็บ (Header, Tabs & Footer)</h3>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">คำโปรยใต้ชื่อร้าน (Header Subtitle)</label>
+                                <input type="text" id="txtEditHeaderSubtitle" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ข้อความลิขสิทธิ์ท้ายเว็บไซต์ (Footer Text)</label>
+                                <input type="text" id="txtEditFooterText" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ชื่อเมนูแท็บที่ 1</label>
+                                <input type="text" id="txtEditNavTabPay" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ชื่อเมนูแท็บที่ 2</label>
+                                <input type="text" id="txtEditNavTabPoints" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ชื่อเมนูแท็บที่ 3</label>
+                                <input type="text" id="txtEditNavTabContact" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group 2: Payment Tab Steps -->
+                    <div class="p-4 bg-sky-50/40 rounded-2xl border border-sky-100 space-y-3">
+                        <h3 class="text-xs font-bold text-sky-700 uppercase tracking-wide"><i class="fa-solid fa-qrcode mr-1"></i> หน้าโอนเงิน / ชำระเงิน (ขั้นตอนที่ 1 - 3)</h3>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">หัวข้อขั้นตอนที่ 1</label>
+                                <input type="text" id="txtEditStep1Title" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ป้ายช่องกรอกชื่อสะสมแต้ม</label>
+                                <input type="text" id="txtEditStep1NameLabel" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ป้ายช่องกรอกรหัส PIN</label>
+                                <input type="text" id="txtEditStep1PinLabel" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">คำแนะนำใต้ช่องกรอกชื่อ & PIN</label>
+                                <input type="text" id="txtEditStep1Helper" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">หัวข้อขั้นตอนที่ 2 (บัญชีธนาคาร)</label>
+                                <input type="text" id="txtEditStep2Title" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">หัวข้อกรอบข้อความกำกับสลิป</label>
+                                <input type="text" id="txtEditRemarkLabel" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">หัวข้อเหนือรูป QR Code</label>
+                                <input type="text" id="txtEditQrScanTitle" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">หัวข้อขั้นตอนที่ 3 (ส่งสลิป)</label>
+                                <input type="text" id="txtEditStep3Title" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ป้ายช่องกรอกยอดเงินที่โอน</label>
+                                <input type="text" id="txtEditStep3AmountLabel" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ป้ายช่องแนบรูปสลิป</label>
+                                <input type="text" id="txtEditStep3SlipLabel" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ข้อความในกล่องอัปโหลดสลิป (บรรทัดหลัก)</label>
+                                <input type="text" id="txtEditStep3UploadTitle" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ข้อความในกล่องอัปโหลดสลิป (บรรทัดรอง)</label>
+                                <input type="text" id="txtEditStep3UploadSub" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ข้อความบนปุ่มส่งสลิป</label>
+                                <input type="text" id="txtEditStep3SubmitBtn" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group 3: Points Check Tab & Contact Tab -->
+                    <div class="p-4 bg-sky-50/40 rounded-2xl border border-sky-100 space-y-3">
+                        <h3 class="text-xs font-bold text-sky-700 uppercase tracking-wide"><i class="fa-solid fa-star mr-1"></i> หน้าเช็กแต้มสะสม & หน้าติดต่อร้านค้า</h3>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">หัวข้อหน้าเช็กแต้มสะสม</label>
+                                <input type="text" id="txtEditPointsPageTitle" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ข้อความบนปุ่มกดค้นหาแต้ม</label>
+                                <input type="text" id="txtEditPointsSearchBtn" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">คำแนะนำใต้ช่องเช็กแต้ม</label>
+                                <input type="text" id="txtEditPointsHelper" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ป้ายกำกับบนการ์ดสมาชิก (VIP Badge)</label>
+                                <input type="text" id="txtEditPointsVipBadge" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">หัวข้อตารางประวัติการโอนเงิน</label>
+                                <input type="text" id="txtEditPointsHistoryTitle" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">คำโปรยหน้าติดต่อร้านค้า</label>
+                                <input type="text" id="txtEditContactSubtitle" class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white font-semibold px-8 py-3 rounded-full text-sm shadow-md transition">
+                            <i class="fa-solid fa-floppy-disk mr-1.5"></i> บันทึกข้อความทั้งหมดบนเว็บไซต์
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ADMIN TAB 5: Settings -->
             <section id="sec-admin-settings" class="hidden space-y-6">
                 
                 <!-- Music Control Panel (Supports MP3, YouTube, Spotify, Embed Links) -->
@@ -712,13 +856,40 @@
     <!-- Footer -->
     <footer class="bg-white/80 border-t border-sky-100 py-4 mt-auto">
         <div class="max-w-5xl mx-auto px-4 text-center text-xs text-sky-500/80 font-medium">
-            &copy; 2026 <span id="footerShopName">ร้านค้าสมาร์ทเพย์</span> - ระบบรับชำระเงินและสะสมแต้ม 🩵✨
+            &copy; 2026 <span id="footerShopName">ร้านค้าสมาร์ทเพย์</span> - <span id="footerCopyrightText">ระบบรับชำระเงินและสะสมแต้ม 🩵✨</span>
         </div>
     </footer>
 
     <!-- JavaScript Application Logic -->
     <script>
         // ================= STATE & INITIAL DATA =================
+        const DEFAULT_SITE_TEXTS = {
+            headerSubtitle: "ระบบโอนเงิน & สะสมแต้มพาสเทล ✨",
+            footerText: "ระบบรับชำระเงินและสะสมแต้ม 🩵✨",
+            navTabPay: "โอนเงิน / ชำระเงิน",
+            navTabPoints: "เช็กแต้มสะสม",
+            navTabContact: "ติดต่อร้านค้า",
+            step1Title: "กรอกชื่อ & ตั้งรหัส PIN ส่วนตัวสำหรับสะสมแต้ม",
+            step1NameLabel: "ชื่อที่ใช้สะสมแต้ม (ห้ามซ้ำกับผู้อื่น)",
+            step1PinLabel: "รหัส PIN 4 หลักส่วนตัว (ป้องกันคนอื่นแอบดูประวัติ)",
+            step1Helper: "* จดจำ \"ชื่อ\" และ \"รหัส PIN 4 หลัก\" ของคุณไว้ใช้เปิดดูแต้มสะสมและประวัติการโอนเงินส่วนตัว",
+            step2Title: "ข้อมูลบัญชีธนาคารร้านค้า",
+            remarkLabel: "ข้อความสำหรับบันทึกช่วยจำ/กำกับสลิป",
+            qrScanTitle: "สแกน QR Code เพื่อชำระเงิน",
+            step3Title: "ส่งสลิปการโอนเงิน",
+            step3AmountLabel: "จำนวนเงินที่โอน (บาท)",
+            step3SlipLabel: "แนบรูปภาพสลิปการโอนเงิน",
+            step3UploadTitle: "คลิกเพื่อเลือกรูปภาพสลิป",
+            step3UploadSub: "รองรับไฟล์ภาพ JPG, PNG (บีบอัดภาพให้อัตโนมัติ)",
+            step3SubmitBtn: "ส่งสลิปแจ้งชำระเงิน",
+            pointsPageTitle: "ยืนยันชื่อ & รหัส PIN ส่วนตัวเพื่อดูแต้มและประวัติ",
+            pointsSearchBtn: "เข้าดูข้อมูลส่วนตัว",
+            pointsHelper: "* ระบบป้องกันความเป็นส่วนตัว: ต้องใช้ชื่อและรหัส PIN 4 หลักตรงกันจึงจะเปิดดูประวัติการโอนเงินได้",
+            pointsVipBadge: "💖 สมาชิก VIP",
+            pointsHistoryTitle: "ประวัติรายการแจ้งโอนเงินส่วนตัวของคุณ",
+            contactSubtitle: "หากมีข้อสงสัยเกี่ยวกับยอดเงินหรือแต้มสะสม ติดต่อเราได้ทันทีค่ะ ✨"
+        };
+
         const DEFAULT_SETTINGS = {
             shopName: "ร้านค้าสมาร์ทเพย์",
             shopLogo: "https://placehold.co/150x150/38bdf8/ffffff?text=Logo",
@@ -740,7 +911,8 @@
             bubbles: [
                 { id: "b1", text: "✨ ยินดีต้อนรับเข้าสู่ระบบสะสมแต้ม!", active: true },
                 { id: "b2", text: "🎁 โอนวันนี้ รับแต้มสะสมพิเศษทันที", active: true }
-            ]
+            ],
+            siteTexts: { ...DEFAULT_SITE_TEXTS }
         };
 
         // Mock Initial Slips (With customerPin for anti-impersonation & privacy protection)
@@ -768,7 +940,7 @@
         ];
 
         // Global State Variables
-        let shopSettings = { ...DEFAULT_SETTINGS };
+        let shopSettings = { ...DEFAULT_SETTINGS, siteTexts: { ...DEFAULT_SITE_TEXTS } };
         let slipRecords = [...INITIAL_SLIPS];
         let currentRole = 'customer';
         let isAdminLoggedIn = false;
@@ -908,6 +1080,7 @@
         // ================= INITIALIZATION =================
         window.onload = function () {
             renderSettingsUI();
+            renderSiteTextsUI();
             renderAdminSlipsList();
             renderAdminCustomerPointsTable();
             renderAdminBubblesInputs();
@@ -915,6 +1088,112 @@
             updatePendingBadge();
             setupAudio();
         };
+
+        // ================= FULL SITE TEXT EDITOR LOGIC =================
+        function renderSiteTextsUI() {
+            const t = shopSettings.siteTexts || DEFAULT_SITE_TEXTS;
+
+            // Apply to Customer Facing Elements
+            document.getElementById('headerSubtitleText').textContent = t.headerSubtitle;
+            document.getElementById('footerCopyrightText').textContent = t.footerText;
+            document.getElementById('navTabPayText').textContent = t.navTabPay;
+            document.getElementById('navTabPointsText').textContent = t.navTabPoints;
+            document.getElementById('navTabContactText').textContent = t.navTabContact;
+
+            document.getElementById('step1TitleText').textContent = t.step1Title;
+            document.getElementById('step1NameLabelText').textContent = t.step1NameLabel;
+            document.getElementById('step1PinLabelText').textContent = t.step1PinLabel;
+            document.getElementById('step1HelperText').textContent = t.step1Helper;
+
+            document.getElementById('step2TitleText').textContent = t.step2Title;
+            document.getElementById('remarkLabelText').textContent = t.remarkLabel;
+            document.getElementById('qrScanTitleText').textContent = t.qrScanTitle;
+
+            document.getElementById('step3TitleText').textContent = t.step3Title;
+            document.getElementById('step3AmountLabelText').textContent = t.step3AmountLabel;
+            document.getElementById('step3SlipLabelText').textContent = t.step3SlipLabel;
+            document.getElementById('step3UploadTitleText').textContent = t.step3UploadTitle;
+            document.getElementById('step3UploadSubText').textContent = t.step3UploadSub;
+            document.getElementById('step3SubmitBtnText').textContent = t.step3SubmitBtn;
+
+            document.getElementById('pointsPageTitleText').textContent = t.pointsPageTitle;
+            document.getElementById('pointsSearchBtnText').textContent = t.pointsSearchBtn;
+            document.getElementById('pointsHelperText').textContent = t.pointsHelper;
+            document.getElementById('pointsVipBadgeText').textContent = t.pointsVipBadge;
+            document.getElementById('pointsHistoryTitleText').textContent = t.pointsHistoryTitle;
+
+            document.getElementById('contactSubtitleText').textContent = t.contactSubtitle;
+
+            // Populate Admin Text Editor Inputs
+            document.getElementById('txtEditHeaderSubtitle').value = t.headerSubtitle;
+            document.getElementById('txtEditFooterText').value = t.footerText;
+            document.getElementById('txtEditNavTabPay').value = t.navTabPay;
+            document.getElementById('txtEditNavTabPoints').value = t.navTabPoints;
+            document.getElementById('txtEditNavTabContact').value = t.navTabContact;
+
+            document.getElementById('txtEditStep1Title').value = t.step1Title;
+            document.getElementById('txtEditStep1NameLabel').value = t.step1NameLabel;
+            document.getElementById('txtEditStep1PinLabel').value = t.step1PinLabel;
+            document.getElementById('txtEditStep1Helper').value = t.step1Helper;
+
+            document.getElementById('txtEditStep2Title').value = t.step2Title;
+            document.getElementById('txtEditRemarkLabel').value = t.remarkLabel;
+            document.getElementById('txtEditQrScanTitle').value = t.qrScanTitle;
+
+            document.getElementById('txtEditStep3Title').value = t.step3Title;
+            document.getElementById('txtEditStep3AmountLabel').value = t.step3AmountLabel;
+            document.getElementById('txtEditStep3SlipLabel').value = t.step3SlipLabel;
+            document.getElementById('txtEditStep3UploadTitle').value = t.step3UploadTitle;
+            document.getElementById('txtEditStep3UploadSub').value = t.step3UploadSub;
+            document.getElementById('txtEditStep3SubmitBtn').value = t.step3SubmitBtn;
+
+            document.getElementById('txtEditPointsPageTitle').value = t.pointsPageTitle;
+            document.getElementById('txtEditPointsSearchBtn').value = t.pointsSearchBtn;
+            document.getElementById('txtEditPointsHelper').value = t.pointsHelper;
+            document.getElementById('txtEditPointsVipBadge').value = t.pointsVipBadge;
+            document.getElementById('txtEditPointsHistoryTitle').value = t.pointsHistoryTitle;
+
+            document.getElementById('txtEditContactSubtitle').value = t.contactSubtitle;
+        }
+
+        function handleSaveSiteTexts(e) {
+            e.preventDefault();
+            shopSettings.siteTexts = {
+                headerSubtitle: document.getElementById('txtEditHeaderSubtitle').value.trim() || DEFAULT_SITE_TEXTS.headerSubtitle,
+                footerText: document.getElementById('txtEditFooterText').value.trim() || DEFAULT_SITE_TEXTS.footerText,
+                navTabPay: document.getElementById('txtEditNavTabPay').value.trim() || DEFAULT_SITE_TEXTS.navTabPay,
+                navTabPoints: document.getElementById('txtEditNavTabPoints').value.trim() || DEFAULT_SITE_TEXTS.navTabPoints,
+                navTabContact: document.getElementById('txtEditNavTabContact').value.trim() || DEFAULT_SITE_TEXTS.navTabContact,
+                step1Title: document.getElementById('txtEditStep1Title').value.trim() || DEFAULT_SITE_TEXTS.step1Title,
+                step1NameLabel: document.getElementById('txtEditStep1NameLabel').value.trim() || DEFAULT_SITE_TEXTS.step1NameLabel,
+                step1PinLabel: document.getElementById('txtEditStep1PinLabel').value.trim() || DEFAULT_SITE_TEXTS.step1PinLabel,
+                step1Helper: document.getElementById('txtEditStep1Helper').value.trim() || DEFAULT_SITE_TEXTS.step1Helper,
+                step2Title: document.getElementById('txtEditStep2Title').value.trim() || DEFAULT_SITE_TEXTS.step2Title,
+                remarkLabel: document.getElementById('txtEditRemarkLabel').value.trim() || DEFAULT_SITE_TEXTS.remarkLabel,
+                qrScanTitle: document.getElementById('txtEditQrScanTitle').value.trim() || DEFAULT_SITE_TEXTS.qrScanTitle,
+                step3Title: document.getElementById('txtEditStep3Title').value.trim() || DEFAULT_SITE_TEXTS.step3Title,
+                step3AmountLabel: document.getElementById('txtEditStep3AmountLabel').value.trim() || DEFAULT_SITE_TEXTS.step3AmountLabel,
+                step3SlipLabel: document.getElementById('txtEditStep3SlipLabel').value.trim() || DEFAULT_SITE_TEXTS.step3SlipLabel,
+                step3UploadTitle: document.getElementById('txtEditStep3UploadTitle').value.trim() || DEFAULT_SITE_TEXTS.step3UploadTitle,
+                step3UploadSub: document.getElementById('txtEditStep3UploadSub').value.trim() || DEFAULT_SITE_TEXTS.step3UploadSub,
+                step3SubmitBtn: document.getElementById('txtEditStep3SubmitBtn').value.trim() || DEFAULT_SITE_TEXTS.step3SubmitBtn,
+                pointsPageTitle: document.getElementById('txtEditPointsPageTitle').value.trim() || DEFAULT_SITE_TEXTS.pointsPageTitle,
+                pointsSearchBtn: document.getElementById('txtEditPointsSearchBtn').value.trim() || DEFAULT_SITE_TEXTS.pointsSearchBtn,
+                pointsHelper: document.getElementById('txtEditPointsHelper').value.trim() || DEFAULT_SITE_TEXTS.pointsHelper,
+                pointsVipBadge: document.getElementById('txtEditPointsVipBadge').value.trim() || DEFAULT_SITE_TEXTS.pointsVipBadge,
+                pointsHistoryTitle: document.getElementById('txtEditPointsHistoryTitle').value.trim() || DEFAULT_SITE_TEXTS.pointsHistoryTitle,
+                contactSubtitle: document.getElementById('txtEditContactSubtitle').value.trim() || DEFAULT_SITE_TEXTS.contactSubtitle
+            };
+
+            renderSiteTextsUI();
+            showToast("บันทึกข้อความทุกจุดบนเว็บไซต์เรียบร้อยแล้ว", "success");
+        }
+
+        function resetDefaultSiteTexts() {
+            shopSettings.siteTexts = { ...DEFAULT_SITE_TEXTS };
+            renderSiteTextsUI();
+            showToast("คืนค่าข้อความเริ่มต้นเรียบร้อยแล้ว", "success");
+        }
 
         // ================= ADMIN EMAIL & PASSCODE LOGIN UTILITY =================
         function openAdminLoginModal() {
@@ -1173,7 +1452,7 @@
         }
 
         function switchAdminTab(tabName) {
-            const tabs = ['slips', 'points', 'bubbles', 'settings'];
+            const tabs = ['slips', 'points', 'bubbles', 'texts', 'settings'];
             tabs.forEach(t => {
                 const sec = document.getElementById(`sec-admin-${t}`);
                 const btn = document.getElementById(`btnAdminTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
