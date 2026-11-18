@@ -13,6 +13,8 @@
     <!-- Cropper.js CSS & JS for Image Cropping -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <!-- Supabase JS SDK CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: 'Prompt', sans-serif;
@@ -42,8 +44,12 @@
             border-radius: 9999px;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .btn-sweet:hover {
+        .btn-sweet:hover:not(:disabled) {
             transform: translateY(-2px) scale(1.02);
+        }
+        .btn-sweet:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         .card-sweet {
             border-radius: 2rem;
@@ -77,7 +83,7 @@
                 </div>
                 <div>
                     <!-- Shop Name -->
-                    <h1 class="font-bold text-xl leading-tight tracking-wide drop-shadow-sm cute-font text-white" id="headerShopName">ร้านค้าสมาร์ทเพย์</h1>
+                    <h1 class="font-bold text-xl leading-tight tracking-wide drop-shadow-sm cute-font text-white" id="headerShopName">กำลังโหลด...</h1>
                     <p class="text-xs text-sky-50 flex items-center gap-1">
                         <i class="fa-solid fa-sparkles text-[10px] text-yellow-200"></i> <span id="headerSubtitleText">ระบบโอนเงิน & สะสมแต้มพาสเทล ✨</span>
                     </p>
@@ -183,7 +189,7 @@
                         
                         <!-- List of Bank Accounts -->
                         <div id="customerBankAccountsList" class="space-y-3">
-                            <!-- Dynamic Bank Channels Container -->
+                            <div class="p-4 text-center text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดข้อมูลบัญชีธนาคาร...</div>
                         </div>
 
                         <!-- Copy Remark Code Section -->
@@ -191,9 +197,9 @@
                             <div class="flex justify-between items-start">
                                 <div>
                                     <span id="remarkLabelText" class="text-xs font-semibold text-sky-700 block">ข้อความสำหรับบันทึกช่วยจำ/กำกับสลิป</span>
-                                    <p id="displayRemarkText" class="text-xs text-sky-600 font-medium mt-1">ชำระค่าสินค้าสะสมแต้ม</p>
+                                    <p id="displayRemarkText" class="text-xs text-sky-600 font-medium mt-1">กำลังโหลด...</p>
                                 </div>
-                                <button onclick="copyRemarkText()" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-xs transition shrink-0 ml-2">
+                                <button type="button" onclick="copyRemarkText()" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-xs transition shrink-0 ml-2">
                                     <i class="fa-regular fa-copy mr-1"></i> คัดลอก
                                 </button>
                             </div>
@@ -208,7 +214,7 @@
                         <div class="bg-white p-3.5 rounded-3xl shadow-sm border-2 border-sky-200 max-w-[210px] relative">
                             <img id="displayQrImage" src="https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment" alt="QR Code" class="w-full h-auto rounded-2xl object-contain">
                         </div>
-                        <p id="displayPointsRatioInfo" class="text-[11px] text-sky-600 font-semibold mt-3 bg-white px-4 py-1.5 rounded-full border border-sky-200 shadow-xs">✨ ทุก 100 บาท = 1 แต้ม ✨</p>
+                        <p id="displayPointsRatioInfo" class="text-[11px] text-sky-600 font-semibold mt-3 bg-white px-4 py-1.5 rounded-full border border-sky-200 shadow-xs">✨ กำลังโหลดอัตราแต้ม... ✨</p>
                     </div>
                 </div>
 
@@ -263,7 +269,7 @@
                             <input type="password" id="searchCustomerPinInput" maxlength="4" placeholder="รหัส PIN 4 หลัก" class="w-full px-4 py-3 rounded-full border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300 text-sm bg-sky-50/20 tracking-widest font-bold text-center">
                         </div>
                         <div class="sm:col-span-1">
-                            <button onclick="searchCustomerPoints()" class="btn-sweet w-full bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white px-6 py-3 rounded-full font-semibold text-sm transition shadow-sm">
+                            <button type="button" id="btnSearchPoints" onclick="searchCustomerPoints()" class="btn-sweet w-full bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white px-6 py-3 rounded-full font-semibold text-sm transition shadow-sm">
                                 <i class="fa-solid fa-magnifying-glass mr-1"></i> <span id="pointsSearchBtnText">เข้าดูข้อมูลส่วนตัว</span>
                             </button>
                         </div>
@@ -280,7 +286,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <p id="pointsCardLabelText" class="text-xs text-sky-50">ข้อมูลผู้สะสมแต้ม</p>
-                                <h3 id="resultCustomerName" class="text-2xl font-bold cute-font tracking-wide">คุณสมชาย ใจดี</h3>
+                                <h3 id="resultCustomerName" class="text-2xl font-bold cute-font tracking-wide">-</h3>
                             </div>
                             <span id="pointsVipBadgeText" class="bg-white/30 px-3.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border border-white/40">💖 สมาชิก VIP</span>
                         </div>
@@ -325,7 +331,7 @@
                         <div class="w-24 h-24 bg-gradient-to-tr from-sky-100 to-sky-50 text-sky-400 rounded-full flex items-center justify-center mx-auto mb-2 border-4 border-sky-200 shadow-md overflow-hidden">
                             <img id="contactShopLogo" src="https://placehold.co/150x150/38bdf8/ffffff?text=Logo" alt="Shop Logo" class="w-full h-full object-cover">
                         </div>
-                        <h2 class="text-2xl font-bold text-sky-600 cute-font" id="contactShopTitle">ร้านค้าสมาร์ทเพย์</h2>
+                        <h2 class="text-2xl font-bold text-sky-600 cute-font" id="contactShopTitle">กำลังโหลด...</h2>
                         <p id="contactSubtitleText" class="text-xs text-slate-400">หากมีข้อสงสัยเกี่ยวกับยอดเงินหรือแต้มสะสม ติดต่อเราได้ทันทีค่ะ ✨</p>
                     </div>
 
@@ -336,7 +342,7 @@
                             </div>
                             <div class="overflow-hidden">
                                 <span id="contactLineLabelText" class="text-xs text-emerald-600 font-medium block">LINE Official</span>
-                                <span id="displayContactLine" class="text-sm font-semibold text-slate-700 truncate block">@smartpay_shop</span>
+                                <span id="displayContactLine" class="text-sm font-semibold text-slate-700 truncate block">-</span>
                             </div>
                         </a>
 
@@ -346,7 +352,7 @@
                             </div>
                             <div class="overflow-hidden">
                                 <span id="contactPhoneLabelText" class="text-xs text-sky-600 font-medium block">เบอร์โทรศัพท์</span>
-                                <span id="displayContactPhone" class="text-sm font-semibold text-slate-700 truncate block">089-123-4567</span>
+                                <span id="displayContactPhone" class="text-sm font-semibold text-slate-700 truncate block">-</span>
                             </div>
                         </a>
 
@@ -356,7 +362,7 @@
                             </div>
                             <div class="overflow-hidden">
                                 <span id="contactFbLabelText" class="text-xs text-blue-600 font-medium block">Facebook Page</span>
-                                <span id="displayContactFacebook" class="text-sm font-semibold text-slate-700 truncate block">SmartPay Shop ร้านค้าออนไลน์</span>
+                                <span id="displayContactFacebook" class="text-sm font-semibold text-slate-700 truncate block">-</span>
                             </div>
                         </a>
                     </div>
@@ -370,33 +376,33 @@
             <!-- Admin Header Status & Logout -->
             <div class="bg-sky-50 border border-sky-200 rounded-3xl px-5 py-3 flex flex-wrap justify-between items-center gap-2 text-xs">
                 <span class="text-sky-700 font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-user-shield text-sky-500"></i> เข้าสู่ระบบแอดมินโดย: <span id="loggedInAdminEmailText" class="underline">admin@smartpay.com</span>
+                    <i class="fa-solid fa-user-shield text-sky-500"></i> เข้าสู่ระบบแอดมินโดย: <span id="loggedInAdminEmailText" class="underline">-</span>
                 </span>
-                <button onclick="logoutAdmin()" class="bg-rose-100 hover:bg-rose-200 text-rose-600 px-3 py-1 rounded-full font-semibold transition">
+                <button type="button" id="btnLogoutAdmin" onclick="logoutAdmin()" class="bg-rose-100 hover:bg-rose-200 text-rose-600 px-3 py-1 rounded-full font-semibold transition">
                     <i class="fa-solid fa-right-from-bracket mr-1"></i> ออกจากระบบแอดมิน
                 </button>
             </div>
 
             <!-- Admin Nav Tabs -->
             <div class="bg-white card-sweet p-2 border-2 border-sky-100/70 flex flex-wrap gap-2">
-                <button onclick="switchAdminTab('slips')" id="btnAdminTabSlips" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs flex items-center space-x-2">
+                <button type="button" onclick="switchAdminTab('slips')" id="btnAdminTabSlips" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs flex items-center space-x-2">
                     <i class="fa-solid fa-receipt"></i>
                     <span>ตรวจสอบสลิป</span>
-                    <span id="pendingBadge" class="bg-sky-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">0</span>
+                    <span id="pendingBadge" class="bg-sky-600 text-white text-[10px] px-2 py-0.5 rounded-full ml-1 hidden">0</span>
                 </button>
-                <button onclick="switchAdminTab('points')" id="btnAdminTabPoints" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
+                <button type="button" onclick="switchAdminTab('points')" id="btnAdminTabPoints" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
                     <i class="fa-solid fa-users text-sky-400"></i>
                     <span>จัดการแต้มสะสม</span>
                 </button>
-                <button onclick="switchAdminTab('bubbles')" id="btnAdminTabBubbles" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
+                <button type="button" onclick="switchAdminTab('bubbles')" id="btnAdminTabBubbles" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
                     <i class="fa-solid fa-comment-dots text-sky-400"></i>
                     <span>จัดการบับเบิ้ลข้อความ</span>
                 </button>
-                <button onclick="switchAdminTab('texts')" id="btnAdminTabTexts" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
+                <button type="button" onclick="switchAdminTab('texts')" id="btnAdminTabTexts" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
                     <i class="fa-solid fa-pen-nib text-sky-400"></i>
                     <span>แก้ไขข้อความทุกจุด</span>
                 </button>
-                <button onclick="switchAdminTab('settings')" id="btnAdminTabSettings" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
+                <button type="button" onclick="switchAdminTab('settings')" id="btnAdminTabSettings" class="btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2">
                     <i class="fa-solid fa-gear text-sky-400"></i>
                     <span>ตั้งค่าร้านค้า & บัญชี</span>
                 </button>
@@ -413,7 +419,7 @@
                     </div>
 
                     <div id="slipsListContainer" class="space-y-4">
-                        <!-- Dynamic slip items generated by JS -->
+                        <div class="p-8 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดรายการสลิป...</div>
                     </div>
                 </div>
             </section>
@@ -442,7 +448,7 @@
                                 </tr>
                             </thead>
                             <tbody id="adminCustomerPointsTable" class="divide-y divide-sky-50">
-                                <!-- Dynamic rows -->
+                                <tr><td colspan="5" class="p-4 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดข้อมูลลูกค้า...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -456,14 +462,14 @@
                         <h2 class="text-base font-bold text-sky-600 flex items-center cute-font text-lg">
                             <i class="fa-solid fa-comments text-sky-400 mr-2"></i> เพิ่ม/แก้ไข บับเบิ้ลข้อความประชาสัมพันธ์บนหน้าเว็บ
                         </h2>
-                        <button type="button" onclick="addNewBubbleRow()" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs flex items-center gap-1">
+                        <button type="button" id="btnAddBubble" onclick="addNewBubbleRow()" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs flex items-center gap-1">
                             <i class="fa-solid fa-plus"></i> เพิ่มบับเบิ้ลใหม่
                         </button>
                     </div>
                     <p class="text-xs text-slate-400">บับเบิ้ลข้อความจะแสดงผลที่ด้านบนของหน้าเว็บไซต์ฝั่งลูกค้า สามารถเปิด/ปิดการแสดงผลได้</p>
 
                     <div id="adminBubblesContainer" class="space-y-3">
-                        <!-- Dynamic Bubble Edit Items -->
+                        <div class="p-4 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดบับเบิ้ลประกาศ...</div>
                     </div>
                 </div>
             </section>
@@ -478,7 +484,7 @@
                             </h2>
                             <p class="text-xs text-slate-400">ปรับเปลี่ยนคำอธิบาย ป้ายเมนู หัวข้อแต่ละขั้นตอน และข้อความท้ายเว็บได้ตามต้องการ</p>
                         </div>
-                        <button type="button" onclick="resetDefaultSiteTexts()" class="btn-sweet bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-full text-xs font-semibold transition">
+                        <button type="button" id="btnResetSiteTexts" onclick="resetDefaultSiteTexts()" class="btn-sweet bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-full text-xs font-semibold transition">
                             <i class="fa-solid fa-rotate-left mr-1"></i> คืนค่าข้อความเริ่มต้น
                         </button>
                     </div>
@@ -601,7 +607,7 @@
                     </div>
 
                     <div>
-                        <button type="submit" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white font-semibold px-8 py-3 rounded-full text-sm shadow-md transition">
+                        <button type="submit" id="btnSaveSiteTexts" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white font-semibold px-8 py-3 rounded-full text-sm shadow-md transition">
                             <i class="fa-solid fa-floppy-disk mr-1.5"></i> บันทึกข้อความทั้งหมดบนเว็บไซต์
                         </button>
                     </div>
@@ -636,20 +642,14 @@
                     </div>
                 </div>
 
-                <!-- Admin Security Email & Password Section -->
+                <!-- Admin Security Email Section (Managed via Supabase Auth) -->
                 <div class="bg-white card-sweet p-5 border-2 border-sky-100/70 space-y-3">
                     <h2 class="text-base font-bold text-sky-600 flex items-center cute-font text-lg">
-                        <i class="fa-solid fa-lock text-sky-400 mr-2"></i> ตั้งค่าบัญชีอีเมล & รหัสผ่านสำหรับเข้าหน้าแอดมิน (เฉพาะแอดมินเท่านั้น)
+                        <i class="fa-solid fa-lock text-sky-400 mr-2"></i> บัญชีแอดมินที่เข้าสู่ระบบ (Supabase Auth)
                     </h2>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="editAdminEmail" class="block text-xs font-medium text-slate-600 mb-1">อีเมลแอดมิน (เริ่มต้น: admin@smartpay.com)</label>
-                            <input type="email" id="editAdminEmail" required placeholder="admin@smartpay.com" class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none bg-sky-50/10">
-                        </div>
-                        <div>
-                            <label for="editAdminPasscode" class="block text-xs font-medium text-slate-600 mb-1">รหัสผ่านแอดมิน (เริ่มต้น: 1234)</label>
-                            <input type="text" id="editAdminPasscode" required placeholder="1234" class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none bg-sky-50/10">
-                        </div>
+                    <div>
+                        <label for="editAdminEmail" class="block text-xs font-medium text-slate-600 mb-1">อีเมลแอดมินปัจจุบัน (จัดการรหัสผ่านได้ที่ Supabase Authentication)</label>
+                        <input type="email" id="editAdminEmail" disabled class="w-full px-4 py-2 rounded-full border border-sky-200 text-sm bg-sky-50/30 text-slate-500">
                     </div>
                 </div>
 
@@ -672,7 +672,7 @@
                                     <label for="adminLogoFileInput" class="btn-sweet bg-white hover:bg-sky-100 text-sky-600 px-4 py-1.5 rounded-full text-xs font-semibold border border-sky-200 cursor-pointer transition inline-block shadow-xs">
                                         <i class="fa-solid fa-crop-simple mr-1"></i> เลือกและครอบตัดรูปโลโก้ร้าน
                                     </label>
-                                    <span class="text-[11px] text-slate-400 ml-2">รองรับการครอบตัด & บีบอัดภาพ</span>
+                                    <span class="text-[11px] text-slate-400 ml-2">อัปโหลดไปยัง Storage อัตโนมัติ</span>
                                 </div>
                                 <div>
                                     <label for="editShopName" class="block text-xs font-medium text-slate-600 mb-1">จุดใส่ชื่อร้านค้า</label>
@@ -697,12 +697,12 @@
                     <div class="border-t border-sky-100 pt-4 space-y-3">
                         <div class="flex justify-between items-center">
                             <label class="block text-xs font-semibold text-slate-700">จัดการช่องทางโอนเงิน / บัญชีธนาคารร้านค้า</label>
-                            <button type="button" onclick="addNewBankAccountRow()" class="btn-sweet bg-sky-100 hover:bg-sky-200 text-sky-600 text-xs font-semibold px-3 py-1.5 rounded-full transition flex items-center gap-1">
+                            <button type="button" id="btnAddBankAccount" onclick="addNewBankAccountRow()" class="btn-sweet bg-sky-100 hover:bg-sky-200 text-sky-600 text-xs font-semibold px-3 py-1.5 rounded-full transition flex items-center gap-1">
                                 <i class="fa-solid fa-plus text-xs"></i> เพิ่มบัญชีธนาคาร
                             </button>
                         </div>
                         <div id="adminBankAccountsContainer" class="space-y-3">
-                            <!-- Dynamic Bank Channels Edit List -->
+                            <div class="p-3 text-center text-xs text-slate-400">กำลังโหลดบัญชีธนาคาร...</div>
                         </div>
                     </div>
 
@@ -721,7 +721,7 @@
                                 <label for="adminQrFileInput" class="btn-sweet bg-sky-100 hover:bg-sky-200 text-sky-700 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition inline-block">
                                     <i class="fa-solid fa-crop-simple mr-1"></i> เลือกและครอบตัดรูป QR Code
                                 </label>
-                                <p class="text-[11px] text-slate-400 mt-1.5">รองรับการครอบตัด ปรับมุมมอง และบีบอัดอัตโนมัติ</p>
+                                <p class="text-[11px] text-slate-400 mt-1.5">อัปโหลดไปยัง Storage อัตโนมัติ</p>
                             </div>
                         </div>
                     </div>
@@ -752,7 +752,7 @@
                     </div>
 
                     <div class="pt-3 border-t border-sky-100">
-                        <button type="submit" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white font-semibold px-8 py-3 rounded-full text-sm shadow-md transition">
+                        <button type="submit" id="btnSaveShopSettings" class="btn-sweet bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-500 hover:to-sky-400 text-white font-semibold px-8 py-3 rounded-full text-sm shadow-md transition">
                             <i class="fa-solid fa-floppy-disk mr-1.5"></i> บันทึกการตั้งค่าทั้งหมด
                         </button>
                     </div>
@@ -783,8 +783,8 @@
             </div>
 
             <div class="flex justify-center space-x-2 pt-2">
-                <button onclick="closeAdminLoginModal()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ยกเลิก</button>
-                <button onclick="verifyAdminPasscode()" class="btn-sweet px-6 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">เข้าสู่ระบบ</button>
+                <button type="button" onclick="closeAdminLoginModal()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ยกเลิก</button>
+                <button type="button" id="btnLoginSubmit" onclick="verifyAdminPasscode()" class="btn-sweet px-6 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">เข้าสู่ระบบ</button>
             </div>
         </div>
     </div>
@@ -794,7 +794,7 @@
         <div class="relative max-w-lg w-full bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-sky-200 flex flex-col max-h-[90vh]">
             <div class="p-4 bg-gradient-to-r from-sky-400 to-sky-300 text-white flex justify-between items-center shrink-0">
                 <h3 id="cropModalTitle" class="text-sm font-semibold cute-font text-base">ครอบตัดรูปภาพ</h3>
-                <button onclick="closeCropModal()" class="text-white/80 hover:text-white p-1 rounded-full">
+                <button type="button" onclick="closeCropModal()" class="text-white/80 hover:text-white p-1 rounded-full">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
@@ -814,7 +814,7 @@
                 </div>
                 <div class="flex space-x-2">
                     <button type="button" onclick="closeCropModal()" class="btn-sweet px-4 py-2 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ยกเลิก</button>
-                    <button type="button" onclick="confirmCropImage()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">ยืนยันการครอบตัด</button>
+                    <button type="button" id="btnConfirmCrop" onclick="confirmCropImage()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">ยืนยันการครอบตัด</button>
                 </div>
             </div>
         </div>
@@ -825,7 +825,7 @@
         <div class="relative max-w-lg w-full bg-white rounded-3xl overflow-hidden shadow-2xl border-2 border-sky-200">
             <div class="p-4 bg-gradient-to-r from-sky-400 to-sky-300 text-white flex justify-between items-center">
                 <h3 class="text-sm font-semibold cute-font text-base">ตรวจสอบรูปภาพสลิป</h3>
-                <button onclick="closeImageModal()" class="text-white/80 hover:text-white p-1 rounded-full">
+                <button type="button" onclick="closeImageModal()" class="text-white/80 hover:text-white p-1 rounded-full">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
@@ -847,8 +847,8 @@
             </div>
 
             <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeEditPointsModal()" class="btn-sweet px-4 py-2 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ยกเลิก</button>
-                <button onclick="saveCustomerPoints()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">บันทึก</button>
+                <button type="button" onclick="closeEditPointsModal()" class="btn-sweet px-4 py-2 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ยกเลิก</button>
+                <button type="button" id="btnSavePoints" onclick="saveCustomerPoints()" class="btn-sweet px-5 py-2 rounded-full text-xs font-medium bg-gradient-to-r from-sky-400 to-sky-300 text-white shadow-xs">บันทึก</button>
             </div>
         </div>
     </div>
@@ -862,7 +862,13 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // ================= STATE & INITIAL DATA =================
+        // ================= SUPABASE CONFIGURATION =================
+        const SUPABASE_URL = 'https://uyipbjwgmavzpdgpecda.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5aXBiandnbWF2enBkZ3BlY2RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwNDU2NDIsImV4cCI6MjEwOTYyMTY0Mn0.oWAJWEtVFF2mV1-Lkr4GprYxMC93QAPiof_6OaSZ6Lw';
+        
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ================= DEFAULT SITE TEXTS =================
         const DEFAULT_SITE_TEXTS = {
             headerSubtitle: "ระบบโอนเงิน & สะสมแต้มพาสเทล ✨",
             footerText: "ระบบรับชำระเงินและสะสมแต้ม 🩵✨",
@@ -890,14 +896,11 @@
             contactSubtitle: "หากมีข้อสงสัยเกี่ยวกับยอดเงินหรือแต้มสะสม ติดต่อเราได้ทันทีค่ะ ✨"
         };
 
-        const DEFAULT_SETTINGS = {
+        // ================= GLOBAL STATE =================
+        let shopSettings = {
             shopName: "ร้านค้าสมาร์ทเพย์",
             shopLogo: "https://placehold.co/150x150/38bdf8/ffffff?text=Logo",
-            adminEmail: "admin@smartpay.com", // Default Admin Email
-            adminPasscode: "1234",           // Default Admin Passcode
-            bankAccounts: [
-                { id: "acc_1", channel: "ธนาคารกสิกรไทย (K-Bank)", name: "บจก. ร้านค้าสมาร์ทเพย์", number: "123-4-56789-0" }
-            ],
+            adminEmail: "admin@smartpay.com",
             remarkText: "ชำระค่าสินค้าสะสมแต้ม",
             qrImage: "https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment",
             contactLine: "@smartpay_shop",
@@ -906,48 +909,24 @@
             contactPhoneUrl: "tel:0891234567",
             contactFacebook: "SmartPay Shop ร้านค้าออนไลน์",
             contactFacebookUrl: "https://facebook.com",
-            musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-            amountPerPoint: 100, // Default: 100 THB = 1 Point
-            bubbles: [
-                { id: "b1", text: "✨ ยินดีต้อนรับเข้าสู่ระบบสะสมแต้ม!", active: true },
-                { id: "b2", text: "🎁 โอนวันนี้ รับแต้มสะสมพิเศษทันที", active: true }
-            ],
+            musicUrl: "",
+            amountPerPoint: 100,
             siteTexts: { ...DEFAULT_SITE_TEXTS }
         };
 
-        // Mock Initial Slips (With customerPin for anti-impersonation & privacy protection)
-        const INITIAL_SLIPS = [
-            {
-                id: "slip_101",
-                customerName: "สมชาย ใจดี",
-                customerPin: "1111",
-                amount: 500,
-                pointsCalculated: 5,
-                slipImage: "https://placehold.co/400x600/bae6fd/0369a1?text=Sample+Slip+500B",
-                timestamp: new Date(Date.now() - 3600000 * 2).toLocaleString('th-TH'),
-                status: "approved"
-            },
-            {
-                id: "slip_102",
-                customerName: "สายใจ มีสุข",
-                customerPin: "2222",
-                amount: 1200,
-                pointsCalculated: 12,
-                slipImage: "https://placehold.co/400x600/bae6fd/0369a1?text=Sample+Slip+1200B",
-                timestamp: new Date(Date.now() - 3600000).toLocaleString('th-TH'),
-                status: "pending"
-            }
-        ];
+        let bankAccounts = [];
+        let bubbles = [];
+        let slipRecords = [];
+        let customerRecords = [];
 
-        // Global State Variables
-        let shopSettings = { ...DEFAULT_SETTINGS, siteTexts: { ...DEFAULT_SITE_TEXTS } };
-        let slipRecords = [...INITIAL_SLIPS];
         let currentRole = 'customer';
         let isAdminLoggedIn = false;
+        let loggedInAdminEmail = '';
         let selectedSlipImageBase64 = '';
         let tempAdminQrBase64 = '';
         let tempAdminLogoBase64 = '';
-        let editingCustomerKey = null;
+        let editingCustomerId = null;
+        let editingCustomerName = null;
         let isPlayingAudio = false;
         let ytPlayer = null;
         let ytApiReady = false;
@@ -1022,7 +1001,6 @@
                 cropperInstance.destroy();
             }
 
-            // Init Cropper
             cropperInstance = new Cropper(targetImg, {
                 aspectRatio: 1,
                 viewMode: 1,
@@ -1039,7 +1017,6 @@
             }
             cropTargetType = null;
 
-            // Reset File Inputs
             document.getElementById('adminLogoFileInput').value = '';
             document.getElementById('adminQrFileInput').value = '';
         }
@@ -1050,56 +1027,191 @@
             }
         }
 
-        function confirmCropImage() {
+        async function confirmCropImage() {
             if (!cropperInstance) return;
+            const btnConfirm = document.getElementById('btnConfirmCrop');
+            btnConfirm.disabled = true;
 
             const canvas = cropperInstance.getCroppedCanvas({
                 maxWidth: 600,
                 maxHeight: 600,
             });
 
-            if (!canvas) return;
-
-            const croppedBase64 = canvas.toDataURL('image/jpeg', 0.85);
-
-            if (cropTargetType === 'logo') {
-                compressImage(croppedBase64, 200, 200, 0.85, function (compressedBase64) {
-                    tempAdminLogoBase64 = compressedBase64;
-                    document.getElementById('adminShopLogoPreview').src = compressedBase64;
-                    showToast("ครอบตัดรูปโลโก้เรียบร้อยแล้ว", "success");
-                });
-            } else if (cropTargetType === 'qr') {
-                compressImage(croppedBase64, 400, 400, 0.85, function (compressedBase64) {
-                    tempAdminQrBase64 = compressedBase64;
-                    document.getElementById('adminQrPreview').src = compressedBase64;
-                    showToast("ครอบตัดรูป QR Code เรียบร้อยแล้ว", "success");
-                });
+            if (!canvas) {
+                btnConfirm.disabled = false;
+                return;
             }
 
+            const croppedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            const targetType = cropTargetType;
             closeCropModal();
+
+            if (targetType === 'logo') {
+                compressImage(croppedBase64, 200, 200, 0.85, async function (compressedBase64) {
+                    tempAdminLogoBase64 = compressedBase64;
+                    document.getElementById('adminShopLogoPreview').src = compressedBase64;
+                    await uploadAssetToStorage(compressedBase64, 'logo');
+                    btnConfirm.disabled = false;
+                });
+            } else if (targetType === 'qr') {
+                compressImage(croppedBase64, 400, 400, 0.85, async function (compressedBase64) {
+                    tempAdminQrBase64 = compressedBase64;
+                    document.getElementById('adminQrPreview').src = compressedBase64;
+                    await uploadAssetToStorage(compressedBase64, 'qr');
+                    btnConfirm.disabled = false;
+                });
+            } else {
+                btnConfirm.disabled = false;
+            }
         }
 
-        // ================= INITIALIZATION =================
-        window.onload = function () {
+        async function uploadAssetToStorage(base64Data, assetType) {
+            try {
+                showToast("กำลังอัปโหลดรูปภาพไปยังระบบ...", "success");
+                const res = await fetch(base64Data);
+                const blob = await res.blob();
+                const filePath = `${assetType}_${Date.now()}.jpg`;
+
+                const { error: uploadError } = await supabaseClient.storage
+                    .from('shop-assets')
+                    .upload(filePath, blob, { upsert: true });
+
+                if (uploadError) throw uploadError;
+
+                const { data: pubData } = supabaseClient.storage
+                    .from('shop-assets')
+                    .getPublicUrl(filePath);
+
+                const publicUrl = pubData.publicUrl;
+
+                if (assetType === 'logo') {
+                    shopSettings.shopLogo = publicUrl;
+                    tempAdminLogoBase64 = '';
+                    await updateShopSettingsDB({ shop_logo: publicUrl });
+                    showToast("อัปโหลดและบันทึกรูปโลโก้สำเร็จ", "success");
+                } else if (assetType === 'qr') {
+                    shopSettings.qrImage = publicUrl;
+                    tempAdminQrBase64 = '';
+                    await updateShopSettingsDB({ qr_image: publicUrl });
+                    showToast("อัปโหลดและบันทึกรูป QR Code สำเร็จ", "success");
+                }
+                renderSettingsUI();
+            } catch (err) {
+                console.error("Upload asset error:", err);
+                showToast("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " + (err.message || "โปรดลองอีกครั้ง"), "error");
+            }
+        }
+
+        // ================= INITIALIZATION & SUPABASE DATA FETCH =================
+        window.onload = async function () {
+            await loadPublicData();
             renderSettingsUI();
             renderSiteTextsUI();
-            renderAdminSlipsList();
-            renderAdminCustomerPointsTable();
-            renderAdminBubblesInputs();
             renderCustomerBubbles();
-            updatePendingBadge();
             setupAudio();
             initAutoPlayAndLeaveHandlers();
+            await verifyExistingAdminSession();
         };
+
+        async function verifyExistingAdminSession() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    const { data: isAdmin, error } = await supabaseClient.rpc('is_admin');
+                    if (!error && isAdmin === true) {
+                        isAdminLoggedIn = true;
+                        loggedInAdminEmail = session.user.email || '';
+                        document.getElementById('loggedInAdminEmailText').textContent = loggedInAdminEmail;
+                    } else {
+                        isAdminLoggedIn = false;
+                        await supabaseClient.auth.signOut();
+                    }
+                }
+            } catch (err) {
+                console.error("Session verification error:", err);
+            }
+        }
+
+        async function loadPublicData() {
+            try {
+                // 1. Load shop_settings
+                const { data: settingsData, error: settingsErr } = await supabaseClient
+                    .from('shop_settings')
+                    .select('*')
+                    .eq('id', 1)
+                    .maybeSingle();
+
+                if (settingsErr) throw settingsErr;
+
+                if (settingsData) {
+                    shopSettings = {
+                        shopName: settingsData.shop_name || "ร้านค้าสมาร์ทเพย์",
+                        shopLogo: settingsData.shop_logo || "https://placehold.co/150x150/38bdf8/ffffff?text=Logo",
+                        adminEmail: settingsData.admin_email || "admin@smartpay.com",
+                        remarkText: settingsData.remark_text || "ชำระค่าสินค้าสะสมแต้ม",
+                        qrImage: settingsData.qr_image || "https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment",
+                        contactLine: settingsData.contact_line || "@smartpay_shop",
+                        contactLineUrl: settingsData.contact_line_url || "https://line.me",
+                        contactPhone: settingsData.contact_phone || "089-123-4567",
+                        contactPhoneUrl: settingsData.contact_phone_url || "tel:0891234567",
+                        contactFacebook: settingsData.contact_facebook || "SmartPay Shop ร้านค้าออนไลน์",
+                        contactFacebookUrl: settingsData.contact_facebook_url || "https://facebook.com",
+                        musicUrl: settingsData.music_url || "",
+                        amountPerPoint: Number(settingsData.amount_per_point) || 100,
+                        siteTexts: (settingsData.site_texts && Object.keys(settingsData.site_texts).length > 0)
+                            ? { ...DEFAULT_SITE_TEXTS, ...settingsData.site_texts }
+                            : { ...DEFAULT_SITE_TEXTS }
+                    };
+                }
+
+                // 2. Load bank_accounts
+                const { data: banksData, error: banksErr } = await supabaseClient
+                    .from('bank_accounts')
+                    .select('*')
+                    .order('sort_order', { ascending: true });
+
+                if (banksErr) throw banksErr;
+                bankAccounts = (banksData || []).map(b => ({
+                    id: b.id,
+                    channel: b.channel,
+                    name: b.account_name,
+                    number: b.account_number
+                }));
+
+                // 3. Load bubbles
+                const { data: bubblesData, error: bubblesErr } = await supabaseClient
+                    .from('bubbles')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (bubblesErr) throw bubblesErr;
+                bubbles = (bubblesData || []).map(b => ({
+                    id: b.id,
+                    text: b.text,
+                    active: b.is_active
+                }));
+
+            } catch (err) {
+                console.error("Load public data error:", err);
+                showToast("เกิดข้อผิดพลาดในการโหลดข้อมูลร้านค้า", "error");
+                document.getElementById('customerBankAccountsList').innerHTML = `<p class="text-xs text-rose-500 text-center py-2">เกิดข้อผิดพลาดในการโหลดบัญชีธนาคาร</p>`;
+            }
+        }
+
+        async function updateShopSettingsDB(payload) {
+            const { error } = await supabaseClient
+                .from('shop_settings')
+                .update(payload)
+                .eq('id', 1);
+            if (error) throw error;
+        }
 
         // ================= AUTO MUSIC PLAY ON LOAD & STOP ON LEAVE =================
         function initAutoPlayAndLeaveHandlers() {
-            // Attempt auto-play music on first user interaction or load
             setTimeout(() => {
                 tryAutoPlayMusic();
             }, 600);
 
-            // Listen for any first click/touch to bypass browser autoplay policies
             const triggerAutoPlay = () => {
                 if (!isPlayingAudio) {
                     tryAutoPlayMusic();
@@ -1113,7 +1225,6 @@
             window.addEventListener('touchstart', triggerAutoPlay);
             window.addEventListener('keydown', triggerAutoPlay);
 
-            // Stop music immediately when customer leaves the site or closes tab
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden && isPlayingAudio) {
                     stopAllMusicSources();
@@ -1160,9 +1271,7 @@
                 audio.play().then(() => {
                     isPlayingAudio = true;
                     updateAudioButtonState(true);
-                }).catch(() => {
-                    // Browser blocked autoplay until user interaction
-                });
+                }).catch(() => {});
             }
         }
 
@@ -1170,7 +1279,6 @@
         function renderSiteTextsUI() {
             const t = shopSettings.siteTexts || DEFAULT_SITE_TEXTS;
 
-            // Apply to Customer Facing Elements
             document.getElementById('headerSubtitleText').textContent = t.headerSubtitle;
             document.getElementById('footerCopyrightText').textContent = t.footerText;
             document.getElementById('navTabPayText').textContent = t.navTabPay;
@@ -1201,7 +1309,6 @@
 
             document.getElementById('contactSubtitleText').textContent = t.contactSubtitle;
 
-            // Populate Admin Text Editor Inputs
             document.getElementById('txtEditHeaderSubtitle').value = t.headerSubtitle;
             document.getElementById('txtEditFooterText').value = t.footerText;
             document.getElementById('txtEditNavTabPay').value = t.navTabPay;
@@ -1233,46 +1340,66 @@
             document.getElementById('txtEditContactSubtitle').value = t.contactSubtitle;
         }
 
-        function handleSaveSiteTexts(e) {
+        async function handleSaveSiteTexts(e) {
             e.preventDefault();
-            shopSettings.siteTexts = {
-                headerSubtitle: document.getElementById('txtEditHeaderSubtitle').value.trim() || DEFAULT_SITE_TEXTS.headerSubtitle,
-                footerText: document.getElementById('txtEditFooterText').value.trim() || DEFAULT_SITE_TEXTS.footerText,
-                navTabPay: document.getElementById('txtEditNavTabPay').value.trim() || DEFAULT_SITE_TEXTS.navTabPay,
-                navTabPoints: document.getElementById('txtEditNavTabPoints').value.trim() || DEFAULT_SITE_TEXTS.navTabPoints,
-                navTabContact: document.getElementById('txtEditNavTabContact').value.trim() || DEFAULT_SITE_TEXTS.navTabContact,
-                step1Title: document.getElementById('txtEditStep1Title').value.trim() || DEFAULT_SITE_TEXTS.step1Title,
-                step1NameLabel: document.getElementById('txtEditStep1NameLabel').value.trim() || DEFAULT_SITE_TEXTS.step1NameLabel,
-                step1PinLabel: document.getElementById('txtEditStep1PinLabel').value.trim() || DEFAULT_SITE_TEXTS.step1PinLabel,
-                step1Helper: document.getElementById('txtEditStep1Helper').value.trim() || DEFAULT_SITE_TEXTS.step1Helper,
-                step2Title: document.getElementById('txtEditStep2Title').value.trim() || DEFAULT_SITE_TEXTS.step2Title,
-                remarkLabel: document.getElementById('txtEditRemarkLabel').value.trim() || DEFAULT_SITE_TEXTS.remarkLabel,
-                qrScanTitle: document.getElementById('txtEditQrScanTitle').value.trim() || DEFAULT_SITE_TEXTS.qrScanTitle,
-                step3Title: document.getElementById('txtEditStep3Title').value.trim() || DEFAULT_SITE_TEXTS.step3Title,
-                step3AmountLabel: document.getElementById('txtEditStep3AmountLabel').value.trim() || DEFAULT_SITE_TEXTS.step3AmountLabel,
-                step3SlipLabel: document.getElementById('txtEditStep3SlipLabel').value.trim() || DEFAULT_SITE_TEXTS.step3SlipLabel,
-                step3UploadTitle: document.getElementById('txtEditStep3UploadTitle').value.trim() || DEFAULT_SITE_TEXTS.step3UploadTitle,
-                step3UploadSub: document.getElementById('txtEditStep3UploadSub').value.trim() || DEFAULT_SITE_TEXTS.step3UploadSub,
-                step3SubmitBtn: document.getElementById('txtEditStep3SubmitBtn').value.trim() || DEFAULT_SITE_TEXTS.step3SubmitBtn,
-                pointsPageTitle: document.getElementById('txtEditPointsPageTitle').value.trim() || DEFAULT_SITE_TEXTS.pointsPageTitle,
-                pointsSearchBtn: document.getElementById('txtEditPointsSearchBtn').value.trim() || DEFAULT_SITE_TEXTS.pointsSearchBtn,
-                pointsHelper: document.getElementById('txtEditPointsHelper').value.trim() || DEFAULT_SITE_TEXTS.pointsHelper,
-                pointsVipBadge: document.getElementById('txtEditPointsVipBadge').value.trim() || DEFAULT_SITE_TEXTS.pointsVipBadge,
-                pointsHistoryTitle: document.getElementById('txtEditPointsHistoryTitle').value.trim() || DEFAULT_SITE_TEXTS.pointsHistoryTitle,
-                contactSubtitle: document.getElementById('txtEditContactSubtitle').value.trim() || DEFAULT_SITE_TEXTS.contactSubtitle
-            };
+            const btnSave = document.getElementById('btnSaveSiteTexts');
+            btnSave.disabled = true;
 
-            renderSiteTextsUI();
-            showToast("บันทึกข้อความทุกจุดบนเว็บไซต์เรียบร้อยแล้ว", "success");
+            try {
+                shopSettings.siteTexts = {
+                    headerSubtitle: document.getElementById('txtEditHeaderSubtitle').value.trim() || DEFAULT_SITE_TEXTS.headerSubtitle,
+                    footerText: document.getElementById('txtEditFooterText').value.trim() || DEFAULT_SITE_TEXTS.footerText,
+                    navTabPay: document.getElementById('txtEditNavTabPay').value.trim() || DEFAULT_SITE_TEXTS.navTabPay,
+                    navTabPoints: document.getElementById('txtEditNavTabPoints').value.trim() || DEFAULT_SITE_TEXTS.navTabPoints,
+                    navTabContact: document.getElementById('txtEditNavTabContact').value.trim() || DEFAULT_SITE_TEXTS.navTabContact,
+                    step1Title: document.getElementById('txtEditStep1Title').value.trim() || DEFAULT_SITE_TEXTS.step1Title,
+                    step1NameLabel: document.getElementById('txtEditStep1NameLabel').value.trim() || DEFAULT_SITE_TEXTS.step1NameLabel,
+                    step1PinLabel: document.getElementById('txtEditStep1PinLabel').value.trim() || DEFAULT_SITE_TEXTS.step1PinLabel,
+                    step1Helper: document.getElementById('txtEditStep1Helper').value.trim() || DEFAULT_SITE_TEXTS.step1Helper,
+                    step2Title: document.getElementById('txtEditStep2Title').value.trim() || DEFAULT_SITE_TEXTS.step2Title,
+                    remarkLabel: document.getElementById('txtEditRemarkLabel').value.trim() || DEFAULT_SITE_TEXTS.remarkLabel,
+                    qrScanTitle: document.getElementById('txtEditQrScanTitle').value.trim() || DEFAULT_SITE_TEXTS.qrScanTitle,
+                    step3Title: document.getElementById('txtEditStep3Title').value.trim() || DEFAULT_SITE_TEXTS.step3Title,
+                    step3AmountLabel: document.getElementById('txtEditStep3AmountLabel').value.trim() || DEFAULT_SITE_TEXTS.step3AmountLabel,
+                    step3SlipLabel: document.getElementById('txtEditStep3SlipLabel').value.trim() || DEFAULT_SITE_TEXTS.step3SlipLabel,
+                    step3UploadTitle: document.getElementById('txtEditStep3UploadTitle').value.trim() || DEFAULT_SITE_TEXTS.step3UploadTitle,
+                    step3UploadSub: document.getElementById('txtEditStep3UploadSub').value.trim() || DEFAULT_SITE_TEXTS.step3UploadSub,
+                    step3SubmitBtn: document.getElementById('txtEditStep3SubmitBtn').value.trim() || DEFAULT_SITE_TEXTS.step3SubmitBtn,
+                    pointsPageTitle: document.getElementById('txtEditPointsPageTitle').value.trim() || DEFAULT_SITE_TEXTS.pointsPageTitle,
+                    pointsSearchBtn: document.getElementById('txtEditPointsSearchBtn').value.trim() || DEFAULT_SITE_TEXTS.pointsSearchBtn,
+                    pointsHelper: document.getElementById('txtEditPointsHelper').value.trim() || DEFAULT_SITE_TEXTS.pointsHelper,
+                    pointsVipBadge: document.getElementById('txtEditPointsVipBadge').value.trim() || DEFAULT_SITE_TEXTS.pointsVipBadge,
+                    pointsHistoryTitle: document.getElementById('txtEditPointsHistoryTitle').value.trim() || DEFAULT_SITE_TEXTS.pointsHistoryTitle,
+                    contactSubtitle: document.getElementById('txtEditContactSubtitle').value.trim() || DEFAULT_SITE_TEXTS.contactSubtitle
+                };
+
+                await updateShopSettingsDB({ site_texts: shopSettings.siteTexts });
+                renderSiteTextsUI();
+                showToast("บันทึกข้อความทุกจุดบนเว็บไซต์เรียบร้อยแล้ว", "success");
+            } catch (err) {
+                console.error("Save site texts error:", err);
+                showToast("เกิดข้อผิดพลาดในการบันทึกข้อความ: " + (err.message || ""), "error");
+            } finally {
+                btnSave.disabled = false;
+            }
         }
 
-        function resetDefaultSiteTexts() {
-            shopSettings.siteTexts = { ...DEFAULT_SITE_TEXTS };
-            renderSiteTextsUI();
-            showToast("คืนค่าข้อความเริ่มต้นเรียบร้อยแล้ว", "success");
+        async function resetDefaultSiteTexts() {
+            const btnReset = document.getElementById('btnResetSiteTexts');
+            btnReset.disabled = true;
+            try {
+                shopSettings.siteTexts = { ...DEFAULT_SITE_TEXTS };
+                await updateShopSettingsDB({ site_texts: shopSettings.siteTexts });
+                renderSiteTextsUI();
+                showToast("คืนค่าข้อความเริ่มต้นเรียบร้อยแล้ว", "success");
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการคืนค่าข้อความ", "error");
+            } finally {
+                btnReset.disabled = false;
+            }
         }
 
-        // ================= ADMIN EMAIL & PASSCODE LOGIN UTILITY =================
+        // ================= ADMIN EMAIL & PASSCODE LOGIN UTILITY (SUPABASE AUTH + is_admin) =================
         function openAdminLoginModal() {
             document.getElementById('adminEmailInput').value = '';
             document.getElementById('adminPasscodeInput').value = '';
@@ -1284,36 +1411,65 @@
             document.getElementById('adminLoginModal').classList.add('hidden');
         }
 
-        function verifyAdminPasscode() {
-            const email = document.getElementById('adminEmailInput').value.trim().toLowerCase();
+        async function verifyAdminPasscode() {
+            const email = document.getElementById('adminEmailInput').value.trim();
             const passcode = document.getElementById('adminPasscodeInput').value.trim();
-            
-            const targetEmail = (shopSettings.adminEmail || "admin@smartpay.com").toLowerCase();
-            const targetCode = shopSettings.adminPasscode || "1234";
+            const btnSubmit = document.getElementById('btnLoginSubmit');
 
             if (!email || !passcode) {
                 showToast("กรุณากรอกทั้งอีเมลและรหัสผ่านแอดมิน", "error");
                 return;
             }
 
-            if (email === targetEmail && passcode === targetCode) {
+            btnSubmit.disabled = true;
+            try {
+                const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: passcode
+                });
+
+                if (authErr) throw authErr;
+
+                // ตรวจสอบสิทธิ์ผ่าน RPC is_admin()
+                const { data: isAdmin, error: rpcErr } = await supabaseClient.rpc('is_admin');
+
+                if (rpcErr || isAdmin !== true) {
+                    await supabaseClient.auth.signOut();
+                    isAdminLoggedIn = false;
+                    showToast("บัญชีนี้ไม่มีสิทธิ์แอดมิน ไม่อนุญาตให้เข้าใช้งาน!", "error");
+                    btnSubmit.disabled = false;
+                    return;
+                }
+
                 isAdminLoggedIn = true;
-                document.getElementById('loggedInAdminEmailText').textContent = shopSettings.adminEmail;
+                loggedInAdminEmail = authData.user.email || email;
+                document.getElementById('loggedInAdminEmailText').textContent = loggedInAdminEmail;
                 closeAdminLoginModal();
                 showToast("เข้าสู่ระบบแอดมินสำเร็จ ยินดีต้อนรับค่ะ", "success");
                 applyRoleChange('admin');
-            } else {
+            } catch (err) {
+                console.error("Admin login error:", err);
                 showToast("อีเมลหรือรหัสผ่านแอดมินไม่ถูกต้อง!", "error");
+            } finally {
+                btnSubmit.disabled = false;
             }
         }
 
-        function logoutAdmin() {
+        async function logoutAdmin() {
+            const btnLogout = document.getElementById('btnLogoutAdmin');
+            btnLogout.disabled = true;
+            try {
+                await supabaseClient.auth.signOut();
+            } catch (e) {}
             isAdminLoggedIn = false;
+            loggedInAdminEmail = '';
+            btnLogout.disabled = false;
             showToast("ออกจากระบบแอดมินเรียบร้อยแล้ว", "success");
             applyRoleChange('customer');
         }
 
         // ================= CHECK DUPLICATE CUSTOMER NAME (ANTI-IMPERSONATION) =================
+        let duplicateCheckTimer = null;
         function checkDuplicateCustomerName() {
             const inputVal = document.getElementById('customerNameInput').value.trim();
             const notice = document.getElementById('duplicateNameNotice');
@@ -1322,12 +1478,32 @@
                 return;
             }
 
-            const existingRecord = slipRecords.find(s => s.customerName.toLowerCase() === inputVal.toLowerCase());
-            if (existingRecord) {
-                notice.classList.remove('hidden');
-            } else {
-                notice.classList.add('hidden');
-            }
+            clearTimeout(duplicateCheckTimer);
+            duplicateCheckTimer = setTimeout(async () => {
+                try {
+                    // ใช้ verify_customer_points ด้วย PIN ปลอมเพื่อตรวจสอบว่าชื่อมีในระบบหรือไม่ (โดยไม่เปิดเผย PIN จริง)
+                    const { data, error } = await supabaseClient.rpc('verify_customer_points', {
+                        p_customer_name: inputVal,
+                        p_customer_pin: '0000'
+                    });
+                    if (!error && data && data.success === true) {
+                        notice.classList.remove('hidden');
+                    } else {
+                        // ลองเช็กอีก 1 PIN เผื่อตั้งไว้ 0000
+                        const { data: data2 } = await supabaseClient.rpc('verify_customer_points', {
+                            p_customer_name: inputVal,
+                            p_customer_pin: '9999'
+                        });
+                        if (data2 && data2.success === true) {
+                            notice.classList.remove('hidden');
+                        } else {
+                            notice.classList.add('hidden');
+                        }
+                    }
+                } catch (e) {
+                    notice.classList.add('hidden');
+                }
+            }, 400);
         }
 
         // ================= UNIVERSAL AUDIO & EMBED MUSIC CONTROLS =================
@@ -1579,7 +1755,7 @@
                         isPlayingAudio = true;
                         updateAudioButtonState(true);
                         showToast("เปิดเสียงเพลงบรรยากาศแล้ว", "success");
-                    }).catch(err => {
+                    }).catch(() => {
                         audio.load();
                         audio.play().then(() => {
                             isPlayingAudio = true;
@@ -1608,11 +1784,31 @@
             }
         }
 
-        // ================= ROLE & NAVIGATION SWITCH =================
-        function setRole(role) {
-            if (role === 'admin' && !isAdminLoggedIn) {
-                openAdminLoginModal();
-                return;
+        // ================= ROLE & NAVIGATION SWITCH (WITH SESSION & is_admin GUARD) =================
+        async function setRole(role) {
+            if (role === 'admin') {
+                try {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    if (!session || !session.user) {
+                        isAdminLoggedIn = false;
+                        openAdminLoginModal();
+                        return;
+                    }
+                    const { data: isAdmin, error } = await supabaseClient.rpc('is_admin');
+                    if (error || isAdmin !== true) {
+                        await supabaseClient.auth.signOut();
+                        isAdminLoggedIn = false;
+                        showToast("บัญชีนี้ไม่มีสิทธิ์แอดมิน ไม่อนุญาตให้เข้าใช้งาน!", "error");
+                        openAdminLoginModal();
+                        return;
+                    }
+                    isAdminLoggedIn = true;
+                    loggedInAdminEmail = session.user.email || '';
+                    document.getElementById('loggedInAdminEmailText').textContent = loggedInAdminEmail;
+                } catch (err) {
+                    openAdminLoginModal();
+                    return;
+                }
             }
             applyRoleChange(role);
         }
@@ -1642,6 +1838,7 @@
                 customerNav.classList.add('hidden');
                 if (announcementBubbles) announcementBubbles.classList.add('hidden');
                 switchAdminTab('slips');
+                loadAdminData();
             }
         }
 
@@ -1660,7 +1857,7 @@
             });
         }
 
-        function switchAdminTab(tabName) {
+        async function switchAdminTab(tabName) {
             const tabs = ['slips', 'points', 'bubbles', 'texts', 'settings'];
             tabs.forEach(t => {
                 const sec = document.getElementById(`sec-admin-${t}`);
@@ -1673,6 +1870,56 @@
                     if (btn) btn.className = "btn-sweet px-5 py-2.5 rounded-full text-xs md:text-sm font-semibold text-slate-600 hover:bg-sky-50 flex items-center space-x-2";
                 }
             });
+            if (tabName === 'slips' || tabName === 'points') {
+                await loadAdminData();
+            }
+        }
+
+        async function loadAdminData() {
+            const slipsContainer = document.getElementById('slipsListContainer');
+            const pointsTbody = document.getElementById('adminCustomerPointsTable');
+
+            slipsContainer.innerHTML = `<div class="p-8 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดรายการสลิป...</div>`;
+            pointsTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดข้อมูลลูกค้า...</td></tr>`;
+
+            try {
+                // 1. Fetch Slips
+                const { data: slipsData, error: slipsErr } = await supabaseClient
+                    .from('slips')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (slipsErr) throw slipsErr;
+
+                slipRecords = (slipsData || []).map(s => ({
+                    id: s.id,
+                    customerId: s.customer_id,
+                    customerName: s.customer_name,
+                    customerPin: s.customer_pin,
+                    amount: Number(s.amount),
+                    pointsCalculated: s.points_calculated,
+                    slipImage: s.slip_image,
+                    timestamp: new Date(s.created_at).toLocaleString('th-TH'),
+                    status: s.status
+                }));
+
+                // 2. Fetch Customers
+                const { data: customersData, error: customersErr } = await supabaseClient
+                    .from('customers')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (customersErr) throw customersErr;
+                customerRecords = customersData || [];
+
+                updatePendingBadge();
+                renderAdminSlipsList();
+                renderAdminCustomerPointsTable();
+            } catch (err) {
+                console.error("Load admin data error:", err);
+                slipsContainer.innerHTML = `<div class="p-8 text-center text-rose-500">เกิดข้อผิดพลาดในการโหลดรายการสลิป</div>`;
+                pointsTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rose-500">เกิดข้อผิดพลาดในการโหลดข้อมูลลูกค้า</td></tr>`;
+            }
         }
 
         // ================= DYNAMIC ANNOUNCEMENT BUBBLES =================
@@ -1681,12 +1928,17 @@
             if (!container) return;
             container.innerHTML = '';
 
-            const activeBubbles = shopSettings.bubbles.filter(b => b.active && b.text.trim() !== '');
+            const activeBubbles = bubbles.filter(b => b.active && b.text.trim() !== '');
 
             activeBubbles.forEach(b => {
                 const span = document.createElement('span');
                 span.className = "bubble-pulse bg-white/90 border-2 border-sky-200 text-sky-700 px-4 py-1.5 rounded-full text-xs font-semibold shadow-xs flex items-center gap-1.5 backdrop-blur-sm cute-font text-sm";
-                span.innerHTML = `<i class="fa-solid fa-sparkles text-sky-400 text-xs"></i> ${escapeHtml(b.text)}`;
+                
+                const icon = document.createElement('i');
+                icon.className = "fa-solid fa-sparkles text-sky-400 text-xs";
+                span.appendChild(icon);
+                span.appendChild(document.createTextNode(" " + b.text));
+                
                 container.appendChild(span);
             });
         }
@@ -1696,59 +1948,115 @@
             if (!container) return;
             container.innerHTML = '';
 
-            if (shopSettings.bubbles.length === 0) {
+            if (bubbles.length === 0) {
                 container.innerHTML = `<p class="text-xs text-slate-400">ยังไม่มีบับเบิ้ลข้อความ</p>`;
                 return;
             }
 
-            shopSettings.bubbles.forEach((b, index) => {
+            bubbles.forEach((b, index) => {
                 const div = document.createElement('div');
                 div.className = "p-3 bg-sky-50/40 rounded-2xl border border-sky-100 flex flex-col sm:flex-row items-center gap-3";
-                div.innerHTML = `
-                    <div class="flex-grow w-full">
-                        <input type="text" value="${escapeHtml(b.text)}" onchange="updateBubbleText(${index}, this.value)" placeholder="กรอกข้อความบับเบิ้ล..." class="w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white">
-                    </div>
-                    <div class="flex items-center space-x-3 shrink-0">
-                        <label class="flex items-center cursor-pointer text-xs font-medium text-slate-600">
-                            <input type="checkbox" ${b.active ? 'checked' : ''} onchange="toggleBubbleStatus(${index})" class="accent-sky-400 mr-1.5 rounded">
-                            แสดงผล
-                        </label>
-                        <button type="button" onclick="removeBubbleRow(${index})" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1">
-                            <i class="fa-solid fa-trash-can"></i> ลบ
-                        </button>
-                    </div>
-                `;
+
+                const inputWrapper = document.createElement('div');
+                inputWrapper.className = "flex-grow w-full";
+                const input = document.createElement('input');
+                input.type = "text";
+                input.value = b.text;
+                input.placeholder = "กรอกข้อความบับเบิ้ล...";
+                input.className = "w-full px-4 py-2 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none bg-white";
+                input.onchange = (e) => updateBubbleText(index, e.target.value);
+                inputWrapper.appendChild(input);
+
+                const controlsWrapper = document.createElement('div');
+                controlsWrapper.className = "flex items-center space-x-3 shrink-0";
+
+                const label = document.createElement('label');
+                label.className = "flex items-center cursor-pointer text-xs font-medium text-slate-600";
+                const checkbox = document.createElement('input');
+                checkbox.type = "checkbox";
+                checkbox.checked = b.active;
+                checkbox.className = "accent-sky-400 mr-1.5 rounded";
+                checkbox.onchange = () => toggleBubbleStatus(index);
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(" แสดงผล"));
+
+                const delBtn = document.createElement('button');
+                delBtn.type = "button";
+                delBtn.className = "text-rose-400 hover:text-rose-600 text-xs px-2 py-1";
+                delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> ลบ`;
+                delBtn.onclick = () => removeBubbleRow(index);
+
+                controlsWrapper.appendChild(label);
+                controlsWrapper.appendChild(delBtn);
+
+                div.appendChild(inputWrapper);
+                div.appendChild(controlsWrapper);
                 container.appendChild(div);
             });
         }
 
-        function addNewBubbleRow() {
-            shopSettings.bubbles.push({
-                id: "b_" + Date.now(),
-                text: "✨ ข้อความแจ้งเตือนใหม่...",
-                active: true
-            });
-            renderAdminBubblesInputs();
-            renderCustomerBubbles();
-        }
+        async function addNewBubbleRow() {
+            const btn = document.getElementById('btnAddBubble');
+            btn.disabled = true;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('bubbles')
+                    .insert({ text: "✨ ข้อความแจ้งเตือนใหม่...", is_active: true })
+                    .select()
+                    .single();
 
-        function removeBubbleRow(index) {
-            shopSettings.bubbles.splice(index, 1);
-            renderAdminBubblesInputs();
-            renderCustomerBubbles();
-        }
-
-        function updateBubbleText(index, val) {
-            if (shopSettings.bubbles[index]) {
-                shopSettings.bubbles[index].text = val;
-                renderCustomerBubbles();
+                if (error) throw error;
+                if (data) {
+                    bubbles.push({ id: data.id, text: data.text, active: data.is_active });
+                    renderAdminBubblesInputs();
+                    renderCustomerBubbles();
+                    showToast("เพิ่มบับเบิ้ลเรียบร้อยแล้ว", "success");
+                }
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการเพิ่มบับเบิ้ล", "error");
+            } finally {
+                btn.disabled = false;
             }
         }
 
-        function toggleBubbleStatus(index) {
-            if (shopSettings.bubbles[index]) {
-                shopSettings.bubbles[index].active = !shopSettings.bubbles[index].active;
+        async function removeBubbleRow(index) {
+            const b = bubbles[index];
+            if (!b) return;
+            try {
+                const { error } = await supabaseClient.from('bubbles').delete().eq('id', b.id);
+                if (error) throw error;
+                bubbles.splice(index, 1);
+                renderAdminBubblesInputs();
                 renderCustomerBubbles();
+                showToast("ลบบับเบิ้ลเรียบร้อยแล้ว", "success");
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการลบบับเบิ้ล", "error");
+            }
+        }
+
+        async function updateBubbleText(index, val) {
+            const b = bubbles[index];
+            if (!b) return;
+            b.text = val;
+            renderCustomerBubbles();
+            try {
+                const { error } = await supabaseClient.from('bubbles').update({ text: val }).eq('id', b.id);
+                if (error) throw error;
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการอัปเดตข้อความบับเบิ้ล", "error");
+            }
+        }
+
+        async function toggleBubbleStatus(index) {
+            const b = bubbles[index];
+            if (!b) return;
+            b.active = !b.active;
+            renderCustomerBubbles();
+            try {
+                const { error } = await supabaseClient.from('bubbles').update({ is_active: b.active }).eq('id', b.id);
+                if (error) throw error;
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการเปลี่ยนสถานะบับเบิ้ล", "error");
             }
         }
 
@@ -1757,33 +2065,50 @@
             const container = document.getElementById('customerBankAccountsList');
             container.innerHTML = '';
 
-            if (shopSettings.bankAccounts.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400">ยังไม่มีข้อมูลบัญชีธนาคาร</p>`;
+            if (bankAccounts.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">ยังไม่มีข้อมูลบัญชีธนาคาร</p>`;
                 return;
             }
 
-            shopSettings.bankAccounts.forEach((acc, idx) => {
+            bankAccounts.forEach((acc, idx) => {
                 const div = document.createElement('div');
                 div.className = "bg-sky-50/60 p-4 rounded-2xl border border-sky-100 space-y-2";
-                div.innerHTML = `
-                    <div>
-                        <span class="text-xs text-slate-400 block">ช่องทางการโอนเงิน #${idx + 1}</span>
-                        <span class="font-semibold text-sky-600 text-sm">${escapeHtml(acc.channel)}</span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-slate-400 block">ชื่อบัญชี</span>
-                        <span class="font-semibold text-slate-700 text-sm">${escapeHtml(acc.name)}</span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-slate-400 block">เลขที่บัญชี</span>
-                        <div class="flex items-center space-x-2 mt-0.5">
-                            <span class="font-mono font-bold text-lg text-sky-600 tracking-wider">${escapeHtml(acc.number)}</span>
-                            <button onclick="copyToClipboard('${escapeHtml(acc.number)}', 'คัดลอกเลขบัญชีเรียบร้อยแล้ว')" class="btn-sweet bg-white hover:bg-sky-50 text-sky-500 px-3 py-1 rounded-full border border-sky-200 text-xs font-medium shadow-xs transition">
-                                <i class="fa-regular fa-copy"></i> คัดลอก
-                            </button>
-                        </div>
-                    </div>
-                `;
+
+                const block1 = document.createElement('div');
+                block1.innerHTML = `<span class="text-xs text-slate-400 block">ช่องทางการโอนเงิน #${idx + 1}</span>`;
+                const val1 = document.createElement('span');
+                val1.className = "font-semibold text-sky-600 text-sm";
+                val1.textContent = acc.channel;
+                block1.appendChild(val1);
+
+                const block2 = document.createElement('div');
+                block2.innerHTML = `<span class="text-xs text-slate-400 block">ชื่อบัญชี</span>`;
+                const val2 = document.createElement('span');
+                val2.className = "font-semibold text-slate-700 text-sm";
+                val2.textContent = acc.name;
+                block2.appendChild(val2);
+
+                const block3 = document.createElement('div');
+                block3.innerHTML = `<span class="text-xs text-slate-400 block">เลขที่บัญชี</span>`;
+                const row3 = document.createElement('div');
+                row3.className = "flex items-center space-x-2 mt-0.5";
+                const val3 = document.createElement('span');
+                val3.className = "font-mono font-bold text-lg text-sky-600 tracking-wider";
+                val3.textContent = acc.number;
+
+                const copyBtn = document.createElement('button');
+                copyBtn.type = "button";
+                copyBtn.className = "btn-sweet bg-white hover:bg-sky-50 text-sky-500 px-3 py-1 rounded-full border border-sky-200 text-xs font-medium shadow-xs transition";
+                copyBtn.innerHTML = `<i class="fa-regular fa-copy"></i> คัดลอก`;
+                copyBtn.onclick = () => copyToClipboard(acc.number, 'คัดลอกเลขบัญชีเรียบร้อยแล้ว');
+
+                row3.appendChild(val3);
+                row3.appendChild(copyBtn);
+                block3.appendChild(row3);
+
+                div.appendChild(block1);
+                div.appendChild(block2);
+                div.appendChild(block3);
                 container.appendChild(div);
             });
         }
@@ -1792,31 +2117,71 @@
             const container = document.getElementById('adminBankAccountsContainer');
             container.innerHTML = '';
 
-            shopSettings.bankAccounts.forEach((acc, index) => {
+            if (bankAccounts.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400">ยังไม่มีบัญชีธนาคาร</p>`;
+                return;
+            }
+
+            bankAccounts.forEach((acc, index) => {
                 const card = document.createElement('div');
                 card.className = "p-3 bg-sky-50/40 rounded-2xl border border-sky-100 space-y-2 relative";
-                card.innerHTML = `
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-xs font-semibold text-sky-600">บัญชีที่ ${index + 1}</span>
-                        ${shopSettings.bankAccounts.length > 1 ? `
-                            <button type="button" onclick="removeBankAccountRow(${index})" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-0.5">
-                                <i class="fa-solid fa-trash-can"></i> ลบ
-                            </button>
-                        ` : ''}
-                    </div>
-                    <div class="grid md:grid-cols-3 gap-2">
-                        <input type="text" placeholder="ช่องทาง/ธนาคาร" value="${escapeHtml(acc.channel)}" onchange="updateBankAccountField(${index}, 'channel', this.value)" required class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
-                        <input type="text" placeholder="ชื่อบัญชี" value="${escapeHtml(acc.name)}" onchange="updateBankAccountField(${index}, 'name', this.value)" required class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
-                        <input type="text" placeholder="เลขที่บัญชี" value="${escapeHtml(acc.number)}" onchange="updateBankAccountField(${index}, 'number', this.value)" required class="w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none">
-                    </div>
-                `;
+
+                const header = document.createElement('div');
+                header.className = "flex justify-between items-center mb-1";
+                const title = document.createElement('span');
+                title.className = "text-xs font-semibold text-sky-600";
+                title.textContent = `บัญชีที่ ${index + 1}`;
+                header.appendChild(title);
+
+                if (bankAccounts.length > 1) {
+                    const delBtn = document.createElement('button');
+                    delBtn.type = "button";
+                    delBtn.className = "text-rose-400 hover:text-rose-600 text-xs px-2 py-0.5";
+                    delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> ลบ`;
+                    delBtn.onclick = () => removeBankAccountRow(index);
+                    header.appendChild(delBtn);
+                }
+
+                const grid = document.createElement('div');
+                grid.className = "grid md:grid-cols-3 gap-2";
+
+                const inpChannel = document.createElement('input');
+                inpChannel.type = "text";
+                inpChannel.placeholder = "ช่องทาง/ธนาคาร";
+                inpChannel.value = acc.channel;
+                inpChannel.required = true;
+                inpChannel.className = "w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none";
+                inpChannel.onchange = (e) => { bankAccounts[index].channel = e.target.value.trim(); };
+
+                const inpName = document.createElement('input');
+                inpName.type = "text";
+                inpName.placeholder = "ชื่อบัญชี";
+                inpName.value = acc.name;
+                inpName.required = true;
+                inpName.className = "w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none";
+                inpName.onchange = (e) => { bankAccounts[index].name = e.target.value.trim(); };
+
+                const inpNum = document.createElement('input');
+                inpNum.type = "text";
+                inpNum.placeholder = "เลขที่บัญชี";
+                inpNum.value = acc.number;
+                inpNum.required = true;
+                inpNum.className = "w-full px-3 py-1.5 rounded-full border border-sky-200 text-xs focus:ring-2 focus:ring-sky-300 focus:outline-none";
+                inpNum.onchange = (e) => { bankAccounts[index].number = e.target.value.trim(); };
+
+                grid.appendChild(inpChannel);
+                grid.appendChild(inpName);
+                grid.appendChild(inpNum);
+
+                card.appendChild(header);
+                card.appendChild(grid);
                 container.appendChild(card);
             });
         }
 
         function addNewBankAccountRow() {
-            shopSettings.bankAccounts.push({
-                id: "acc_" + Date.now(),
+            bankAccounts.push({
+                id: "temp_" + Date.now(),
                 channel: "ธนาคารใหม่",
                 name: shopSettings.shopName,
                 number: "000-0-00000-0"
@@ -1824,22 +2189,25 @@
             renderAdminBankAccountsInputs();
         }
 
-        function removeBankAccountRow(index) {
-            if (shopSettings.bankAccounts.length <= 1) return;
-            shopSettings.bankAccounts.splice(index, 1);
-            renderAdminBankAccountsInputs();
-        }
-
-        function updateBankAccountField(index, field, value) {
-            if (shopSettings.bankAccounts[index]) {
-                shopSettings.bankAccounts[index][field] = value.trim();
+        async function removeBankAccountRow(index) {
+            if (bankAccounts.length <= 1) return;
+            const acc = bankAccounts[index];
+            try {
+                if (acc.id && !acc.id.toString().startsWith('temp_')) {
+                    const { error } = await supabaseClient.from('bank_accounts').delete().eq('id', acc.id);
+                    if (error) throw error;
+                }
+                bankAccounts.splice(index, 1);
+                renderAdminBankAccountsInputs();
+                showToast("ลบบัญชีธนาคารเรียบร้อยแล้ว", "success");
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการลบบัญชีธนาคาร", "error");
             }
         }
 
         // ================= CUSTOMER ACTIONS =================
         function copyRemarkText() {
-            const remark = shopSettings.remarkText;
-            copyToClipboard(remark, "คัดลอกข้อความกำกับสลิปเรียบร้อยแล้ว");
+            copyToClipboard(shopSettings.remarkText, "คัดลอกข้อความกำกับสลิปเรียบร้อยแล้ว");
         }
 
         function copyToClipboard(text, successMsg) {
@@ -1866,74 +2234,100 @@
             });
         }
 
-        function handleCustomerSubmitSlip(e) {
+        async function handleCustomerSubmitSlip(e) {
             e.preventDefault();
+            const btnSubmit = document.getElementById('btnSubmitSlip');
+            btnSubmit.disabled = true;
+
             const nameInput = document.getElementById('customerNameInput').value.trim();
             const pinInput = document.getElementById('customerPinInput').value.trim();
             const amountInput = parseFloat(document.getElementById('transferAmountInput').value);
 
             if (!nameInput) {
                 showToast("กรุณากรอกชื่อสำหรับสะสมแต้ม", "error");
+                btnSubmit.disabled = false;
                 return;
             }
             if (!pinInput || !/^\d{4}$/.test(pinInput)) {
                 showToast("กรุณากำหนดรหัส PIN ตัวเลข 4 หลัก", "error");
+                btnSubmit.disabled = false;
                 return;
             }
             if (!amountInput || amountInput <= 0) {
                 showToast("กรุณากรอกยอดเงินให้ถูกต้อง", "error");
+                btnSubmit.disabled = false;
                 return;
             }
             if (!selectedSlipImageBase64) {
                 showToast("กรุณาแนบรูปภาพสลิปการโอนเงิน", "error");
+                btnSubmit.disabled = false;
                 return;
             }
 
-            const existingCustomerSlip = slipRecords.find(s => s.customerName.toLowerCase() === nameInput.toLowerCase());
-            if (existingCustomerSlip && existingCustomerSlip.customerPin !== pinInput) {
-                showToast("ชื่อนี้ถูกใช้ไปแล้วและรหัส PIN ไม่ตรงกัน! กรุณาตั้งชื่อใหม่ที่ไม่ซ้ำ", "error");
-                return;
+            try {
+                showToast("กำลังอัปโหลดสลิปและส่งข้อมูล...", "success");
+
+                // 1. Upload Slip Image to Supabase Storage Bucket 'payment-slips'
+                const res = await fetch(selectedSlipImageBase64);
+                const blob = await res.blob();
+                const filePath = `slip_${Date.now()}.jpg`;
+
+                const { error: uploadErr } = await supabaseClient.storage
+                    .from('payment-slips')
+                    .upload(filePath, blob, { upsert: true });
+
+                if (uploadErr) throw uploadErr;
+
+                const { data: pubData } = supabaseClient.storage
+                    .from('payment-slips')
+                    .getPublicUrl(filePath);
+
+                const slipUrl = pubData.publicUrl;
+
+                // 2. Call RPC `submit_customer_slip`
+                const { data: rpcRes, error: rpcErr } = await supabaseClient.rpc('submit_customer_slip', {
+                    p_customer_name: nameInput,
+                    p_customer_pin: pinInput,
+                    p_amount: amountInput,
+                    p_slip_image: slipUrl
+                });
+
+                if (rpcErr) throw rpcErr;
+
+                if (!rpcRes || rpcRes.success !== true) {
+                    showToast((rpcRes && rpcRes.message) || "ไม่สามารถส่งสลิปได้", "error");
+                    btnSubmit.disabled = false;
+                    return;
+                }
+
+                document.getElementById('slipForm').reset();
+                document.getElementById('customerNameInput').value = '';
+                document.getElementById('customerPinInput').value = '';
+                document.getElementById('slipPreviewImage').classList.add('hidden');
+                document.getElementById('uploadPlaceholder').classList.remove('hidden');
+                document.getElementById('duplicateNameNotice').classList.add('hidden');
+                selectedSlipImageBase64 = '';
+
+                showToast("ส่งสลิปเรียบร้อยแล้ว! โปรดจำชื่อและ PIN 4 หลักไว้เช็กแต้มค่ะ", "success");
+            } catch (err) {
+                console.error("Submit slip error:", err);
+                showToast("เกิดข้อผิดพลาดในการส่งสลิป: " + (err.message || "โปรดลองอีกครั้ง"), "error");
+            } finally {
+                btnSubmit.disabled = false;
             }
-
-            const rate = shopSettings.amountPerPoint || 100;
-            const calculatedPoints = Math.floor(amountInput / rate);
-
-            const newSlip = {
-                id: "slip_" + Date.now(),
-                customerName: nameInput,
-                customerPin: pinInput,
-                amount: amountInput,
-                pointsCalculated: calculatedPoints,
-                slipImage: selectedSlipImageBase64,
-                timestamp: new Date().toLocaleString('th-TH'),
-                status: "pending"
-            };
-
-            slipRecords.unshift(newSlip);
-
-            document.getElementById('slipForm').reset();
-            document.getElementById('customerNameInput').value = '';
-            document.getElementById('customerPinInput').value = '';
-            document.getElementById('slipPreviewImage').classList.add('hidden');
-            document.getElementById('uploadPlaceholder').classList.remove('hidden');
-            document.getElementById('duplicateNameNotice').classList.add('hidden');
-            selectedSlipImageBase64 = '';
-
-            showToast("ส่งสลิปเรียบร้อยแล้ว! โปรดจำชื่อและ PIN 4 หลักไว้เช็กแต้มค่ะ", "success");
-
-            updatePendingBadge();
-            renderAdminSlipsList();
-            renderAdminCustomerPointsTable();
         }
 
-        function searchCustomerPoints() {
+        async function searchCustomerPoints() {
             const query = document.getElementById('searchCustomerPointsInput').value.trim();
             const pinQuery = document.getElementById('searchCustomerPinInput').value.trim();
+            const btnSearch = document.getElementById('btnSearchPoints');
 
             if (!query || !pinQuery) {
                 showToast("กรุณากรอกทั้งชื่อและรหัส PIN 4 หลักของคุณ", "error");
                 return;
             }
+
+            btnSearch.disabled = true;
 
             const pointsCard = document.getElementById('pointsResultCard');
             const historySec = document.getElementById('customerHistorySection');
@@ -1941,60 +2335,79 @@
             const resultPoints = document.getElementById('resultCustomerPoints');
             const historyTable = document.getElementById('customerHistoryTable');
 
-            const customerMatches = slipRecords.filter(s => s.customerName.toLowerCase() === query.toLowerCase());
+            try {
+                const { data: rpcRes, error: rpcErr } = await supabaseClient.rpc('verify_customer_points', {
+                    p_customer_name: query,
+                    p_customer_pin: pinQuery
+                });
 
-            if (customerMatches.length === 0) {
-                pointsCard.classList.add('hidden');
-                historySec.classList.add('hidden');
-                showToast("ไม่พบรายชื่อนี้ในระบบ", "error");
-                return;
-            }
+                if (rpcErr) throw rpcErr;
 
-            const isPinValid = customerMatches.some(s => s.customerPin === pinQuery);
-            if (!isPinValid) {
-                pointsCard.classList.add('hidden');
-                historySec.classList.add('hidden');
-                showToast("รหัส PIN 4 หลักไม่ถูกต้อง! ไม่สามารถดูข้อมูลของผู้อื่นได้", "error");
-                return;
-            }
-
-            const verifiedMatches = customerMatches.filter(s => s.customerPin === pinQuery);
-
-            let totalPoints = 0;
-            verifiedMatches.forEach(s => {
-                if (s.status === 'approved') {
-                    totalPoints += s.pointsCalculated;
+                if (!rpcRes || rpcRes.success !== true) {
+                    pointsCard.classList.add('hidden');
+                    historySec.classList.add('hidden');
+                    showToast((rpcRes && rpcRes.message) || "ไม่พบรายชื่อหรือรหัส PIN 4 หลักไม่ถูกต้อง!", "error");
+                    btnSearch.disabled = false;
+                    return;
                 }
-            });
 
-            resultName.textContent = `คุณ ${verifiedMatches[0].customerName}`;
-            resultPoints.textContent = totalPoints;
+                resultName.textContent = `คุณ ${rpcRes.customer_name}`;
+                resultPoints.textContent = rpcRes.total_points;
 
-            pointsCard.classList.remove('hidden');
+                pointsCard.classList.remove('hidden');
 
-            historyTable.innerHTML = '';
-            verifiedMatches.forEach(s => {
-                let statusBadge = '';
-                if (s.status === 'approved') {
-                    statusBadge = `<span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-[10px] font-semibold">อนุมัติแล้ว (+${s.pointsCalculated} แต้ม)</span>`;
-                } else if (s.status === 'pending') {
-                    statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[10px] font-semibold">รอตรวจสอบ</span>`;
+                historyTable.innerHTML = '';
+                const historyList = rpcRes.history || [];
+
+                if (historyList.length === 0) {
+                    historyTable.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">ไม่มีประวัติการโอนเงิน</td></tr>`;
                 } else {
-                    statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full text-[10px] font-semibold">ปฏิเสธ</span>`;
+                    historyList.forEach(s => {
+                        const tr = document.createElement('tr');
+
+                        const tdDate = document.createElement('td');
+                        tdDate.className = "p-3.5";
+                        tdDate.textContent = new Date(s.created_at).toLocaleString('th-TH');
+
+                        const tdAmount = document.createElement('td');
+                        tdAmount.className = "p-3.5 font-semibold text-slate-700";
+                        tdAmount.textContent = `฿${Number(s.amount).toLocaleString()}`;
+
+                        const tdPoints = document.createElement('td');
+                        tdPoints.className = "p-3.5 font-bold text-sky-600";
+                        tdPoints.textContent = `+${s.status === 'approved' ? s.points_calculated : 0}`;
+
+                        const tdStatus = document.createElement('td');
+                        tdStatus.className = "p-3.5";
+                        const badge = document.createElement('span');
+                        if (s.status === 'approved') {
+                            badge.className = "bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-[10px] font-semibold";
+                            badge.textContent = `อนุมัติแล้ว (+${s.points_calculated} แต้ม)`;
+                        } else if (s.status === 'pending') {
+                            badge.className = "bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[10px] font-semibold";
+                            badge.textContent = "รอตรวจสอบ";
+                        } else {
+                            badge.className = "bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full text-[10px] font-semibold";
+                            badge.textContent = "ปฏิเสธ";
+                        }
+                        tdStatus.appendChild(badge);
+
+                        tr.appendChild(tdDate);
+                        tr.appendChild(tdAmount);
+                        tr.appendChild(tdPoints);
+                        tr.appendChild(tdStatus);
+                        historyTable.appendChild(tr);
+                    });
                 }
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3.5">${s.timestamp}</td>
-                    <td class="p-3.5 font-semibold text-slate-700">฿${s.amount.toLocaleString()}</td>
-                    <td class="p-3.5 font-bold text-sky-600">+${s.status === 'approved' ? s.pointsCalculated : 0}</td>
-                    <td class="p-3.5">${statusBadge}</td>
-                `;
-                historyTable.appendChild(tr);
-            });
-
-            historySec.classList.remove('hidden');
-            showToast("ยืนยันตัวตนสำเร็จ แสดงข้อมูลแต้มสะสมส่วนตัว", "success");
+                historySec.classList.remove('hidden');
+                showToast("ยืนยันตัวตนสำเร็จ แสดงข้อมูลแต้มสะสมส่วนตัว", "success");
+            } catch (err) {
+                console.error("Search customer points error:", err);
+                showToast("เกิดข้อผิดพลาดในการตรวจสอบข้อมูล", "error");
+            } finally {
+                btnSearch.disabled = false;
+            }
         }
 
         // ================= ADMIN ACTIONS =================
@@ -2022,99 +2435,166 @@
                 const item = document.createElement('div');
                 item.className = "border border-sky-100 rounded-2xl p-4 bg-sky-50/30 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between";
 
-                let statusText = '';
+                const leftDiv = document.createElement('div');
+                leftDiv.className = "flex items-center space-x-4";
+
+                const img = document.createElement('img');
+                img.src = slip.slipImage;
+                img.className = "w-16 h-20 object-cover rounded-xl border-2 border-sky-200 shadow-xs cursor-pointer hover:opacity-90 transition";
+                img.title = "คลิกเพื่อดูรูปใหญ่";
+                img.onclick = () => openImageModal(slip.slipImage);
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = "space-y-1";
+
+                const titleRow = document.createElement('div');
+                titleRow.className = "flex items-center space-x-2 flex-wrap gap-1";
+
+                const h4 = document.createElement('h4');
+                h4.className = "font-bold text-slate-800 text-sm";
+                h4.textContent = slip.customerName + " ";
+
+                const pinSpan = document.createElement('span');
+                pinSpan.className = "text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-mono";
+                pinSpan.textContent = `PIN: ${slip.customerPin || '----'}`;
+                h4.appendChild(pinSpan);
+
+                const statusSpan = document.createElement('span');
                 if (slip.status === 'pending') {
-                    statusText = `<span class="bg-amber-100 text-amber-800 border border-amber-200 text-xs px-3 py-1 rounded-full font-medium">รอการตรวจสอบ</span>`;
+                    statusSpan.className = "bg-amber-100 text-amber-800 border border-amber-200 text-xs px-3 py-1 rounded-full font-medium";
+                    statusSpan.textContent = "รอการตรวจสอบ";
                 } else if (slip.status === 'approved') {
-                    statusText = `<span class="bg-green-100 text-green-800 border border-green-200 text-xs px-3 py-1 rounded-full font-medium">อนุมัติเรียบร้อย (+${slip.pointsCalculated} แต้ม)</span>`;
+                    statusSpan.className = "bg-green-100 text-green-800 border border-green-200 text-xs px-3 py-1 rounded-full font-medium";
+                    statusSpan.textContent = `อนุมัติเรียบร้อย (+${slip.pointsCalculated} แต้ม)`;
                 } else {
-                    statusText = `<span class="bg-rose-100 text-rose-800 border border-rose-200 text-xs px-3 py-1 rounded-full font-medium">ปฏิเสธรายการ</span>`;
+                    statusSpan.className = "bg-rose-100 text-rose-800 border border-rose-200 text-xs px-3 py-1 rounded-full font-medium";
+                    statusSpan.textContent = "ปฏิเสธรายการ";
                 }
 
-                item.innerHTML = `
-                    <div class="flex items-center space-x-4">
-                        <img src="${slip.slipImage}" onclick="openImageModal('${slip.slipImage}')" class="w-16 h-20 object-cover rounded-xl border-2 border-sky-200 shadow-xs cursor-pointer hover:opacity-90 transition" title="คลิกเพื่อดูรูปใหญ่">
-                        <div class="space-y-1">
-                            <div class="flex items-center space-x-2">
-                                <h4 class="font-bold text-slate-800 text-sm">${escapeHtml(slip.customerName)} <span class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-mono">PIN: ${escapeHtml(slip.customerPin || '----')}</span></h4>
-                                ${statusText}
-                            </div>
-                            <p class="text-xs text-slate-600">ยอดเงินโอน: <strong class="text-sky-600 text-sm">฿${slip.amount.toLocaleString()}</strong> (แต้มที่จะได้รับ: ${slip.pointsCalculated} แต้ม)</p>
-                            <p class="text-[11px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${slip.timestamp}</p>
-                        </div>
-                    </div>
+                titleRow.appendChild(h4);
+                titleRow.appendChild(statusSpan);
 
-                    <div class="flex items-center space-x-2 w-full md:w-auto justify-end border-t border-sky-100 md:border-t-0 pt-3 md:pt-0">
-                        ${slip.status === 'pending' ? `
-                            <button onclick="approveSlip('${slip.id}')" class="btn-sweet bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs transition flex items-center space-x-1">
-                                <i class="fa-solid fa-check"></i>
-                                <span>อนุมัติ & ให้แต้ม</span>
-                            </button>
-                            <button onclick="rejectSlip('${slip.id}')" class="btn-sweet bg-rose-400 hover:bg-rose-500 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs transition flex items-center space-x-1">
-                                <i class="fa-solid fa-xmark"></i>
-                                <span>ปฏิเสธ</span>
-                            </button>
-                        ` : `
-                            <button onclick="deleteSlip('${slip.id}')" class="text-slate-400 hover:text-rose-500 text-xs px-3 py-1.5 rounded-full hover:bg-rose-50 transition">
-                                <i class="fa-solid fa-trash-can"></i> ลบรายการ
-                            </button>
-                        `}
-                    </div>
-                `;
+                const pAmount = document.createElement('p');
+                pAmount.className = "text-xs text-slate-600";
+                pAmount.innerHTML = `ยอดเงินโอน: <strong class="text-sky-600 text-sm">฿${slip.amount.toLocaleString()}</strong> (แต้มที่จะได้รับ: ${slip.pointsCalculated} แต้ม)`;
+
+                const pTime = document.createElement('p');
+                pTime.className = "text-[11px] text-slate-400";
+                pTime.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>`;
+                pTime.appendChild(document.createTextNode(slip.timestamp));
+
+                infoDiv.appendChild(titleRow);
+                infoDiv.appendChild(pAmount);
+                infoDiv.appendChild(pTime);
+
+                leftDiv.appendChild(img);
+                leftDiv.appendChild(infoDiv);
+
+                const rightDiv = document.createElement('div');
+                rightDiv.className = "flex items-center space-x-2 w-full md:w-auto justify-end border-t border-sky-100 md:border-t-0 pt-3 md:pt-0";
+
+                if (slip.status === 'pending') {
+                    const btnApprove = document.createElement('button');
+                    btnApprove.type = "button";
+                    btnApprove.className = "btn-sweet bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs transition flex items-center space-x-1";
+                    btnApprove.innerHTML = `<i class="fa-solid fa-check"></i><span>อนุมัติ & ให้แต้ม</span>`;
+                    btnApprove.onclick = () => approveSlip(slip, btnApprove);
+
+                    const btnReject = document.createElement('button');
+                    btnReject.type = "button";
+                    btnReject.className = "btn-sweet bg-rose-400 hover:bg-rose-500 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-xs transition flex items-center space-x-1";
+                    btnReject.innerHTML = `<i class="fa-solid fa-xmark"></i><span>ปฏิเสธ</span>`;
+                    btnReject.onclick = () => rejectSlip(slip, btnReject);
+
+                    rightDiv.appendChild(btnApprove);
+                    rightDiv.appendChild(btnReject);
+                } else {
+                    const btnDelete = document.createElement('button');
+                    btnDelete.type = "button";
+                    btnDelete.className = "text-slate-400 hover:text-rose-500 text-xs px-3 py-1.5 rounded-full hover:bg-rose-50 transition";
+                    btnDelete.innerHTML = `<i class="fa-solid fa-trash-can"></i> ลบรายการ`;
+                    btnDelete.onclick = () => deleteSlip(slip.id, btnDelete);
+                    rightDiv.appendChild(btnDelete);
+                }
+
+                item.appendChild(leftDiv);
+                item.appendChild(rightDiv);
                 container.appendChild(item);
             });
         }
 
-        function approveSlip(slipId) {
-            const slip = slipRecords.find(s => s.id === slipId);
-            if (slip) {
-                slip.status = 'approved';
+        async function approveSlip(slip, btnEl) {
+            if (btnEl) btnEl.disabled = true;
+            try {
+                // 1. Update slip status
+                const { error: slipErr } = await supabaseClient
+                    .from('slips')
+                    .update({ status: 'approved' })
+                    .eq('id', slip.id);
+
+                if (slipErr) throw slipErr;
+
+                // 2. Fetch current customer points & amount
+                const { data: custData, error: custFetchErr } = await supabaseClient
+                    .from('customers')
+                    .select('total_points, total_amount')
+                    .eq('id', slip.customerId)
+                    .single();
+
+                if (custFetchErr) throw custFetchErr;
+
+                // 3. Increment customer points & total_amount
+                const { error: custUpdateErr } = await supabaseClient
+                    .from('customers')
+                    .update({
+                        total_points: (custData.total_points || 0) + slip.pointsCalculated,
+                        total_amount: Number(custData.total_amount || 0) + Number(slip.amount)
+                    })
+                    .eq('id', slip.customerId);
+
+                if (custUpdateErr) throw custUpdateErr;
+
                 showToast(`อนุมัติสลิปของคุณ ${slip.customerName} เรียบร้อยแล้ว (+${slip.pointsCalculated} แต้ม)`, "success");
-                updatePendingBadge();
-                renderAdminSlipsList();
-                renderAdminCustomerPointsTable();
+                await loadAdminData();
+            } catch (err) {
+                console.error("Approve slip error:", err);
+                showToast("เกิดข้อผิดพลาดในการอนุมัติสลิป: " + (err.message || ""), "error");
+                if (btnEl) btnEl.disabled = false;
             }
         }
 
-        function rejectSlip(slipId) {
-            const slip = slipRecords.find(s => s.id === slipId);
-            if (slip) {
-                slip.status = 'rejected';
+        async function rejectSlip(slip, btnEl) {
+            if (btnEl) btnEl.disabled = true;
+            try {
+                const { error } = await supabaseClient
+                    .from('slips')
+                    .update({ status: 'rejected' })
+                    .eq('id', slip.id);
+
+                if (error) throw error;
                 showToast(`ปฏิเสธรายการสลิปของคุณ ${slip.customerName} เรียบร้อยแล้ว`, "success");
-                updatePendingBadge();
-                renderAdminSlipsList();
-                renderAdminCustomerPointsTable();
+                await loadAdminData();
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการปฏิเสธสลิป", "error");
+                if (btnEl) btnEl.disabled = false;
             }
         }
 
-        function deleteSlip(slipId) {
-            slipRecords = slipRecords.filter(s => s.id !== slipId);
-            showToast("ลบรายการสลิปเรียบร้อยแล้ว", "success");
-            updatePendingBadge();
-            renderAdminSlipsList();
-            renderAdminCustomerPointsTable();
-        }
+        async function deleteSlip(slipId, btnEl) {
+            if (btnEl) btnEl.disabled = true;
+            try {
+                const { error } = await supabaseClient
+                    .from('slips')
+                    .delete()
+                    .eq('id', slipId);
 
-        function getCustomerAggregatedData() {
-            const customerMap = {};
-
-            slipRecords.forEach(s => {
-                const key = s.customerName.toLowerCase();
-                if (!customerMap[key]) {
-                    customerMap[key] = {
-                        name: s.customerName,
-                        pin: s.customerPin || '----',
-                        totalAmount: 0,
-                        points: 0
-                    };
-                }
-                if (s.status === 'approved') {
-                    customerMap[key].totalAmount += s.amount;
-                    customerMap[key].points += s.pointsCalculated;
-                }
-            });
-
-            return customerMap;
+                if (error) throw error;
+                showToast("ลบรายการสลิปเรียบร้อยแล้ว", "success");
+                await loadAdminData();
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการลบสลิป", "error");
+                if (btnEl) btnEl.disabled = false;
+            }
         }
 
         function renderAdminCustomerPointsTable() {
@@ -2122,34 +2602,53 @@
             const searchVal = document.getElementById('adminSearchCustomerInput').value.toLowerCase().trim();
             tbody.innerHTML = '';
 
-            const customerMap = getCustomerAggregatedData();
-            const keys = Object.keys(customerMap).filter(k => k.includes(searchVal));
+            const filtered = customerRecords.filter(c => c.customer_name.toLowerCase().includes(searchVal));
 
-            if (keys.length === 0) {
+            if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ไม่พบข้อมูลลูกค้า</td></tr>`;
                 return;
             }
 
-            keys.forEach(k => {
-                const cust = customerMap[k];
+            filtered.forEach(cust => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3.5 font-semibold text-slate-800">${escapeHtml(cust.name)}</td>
-                    <td class="p-3.5 font-mono text-slate-500">${escapeHtml(cust.pin)}</td>
-                    <td class="p-3.5">฿${cust.totalAmount.toLocaleString()}</td>
-                    <td class="p-3.5 font-bold text-sky-600">${cust.points} แต้ม</td>
-                    <td class="p-3.5 text-center">
-                        <button onclick="openEditPointsModal('${cust.name}', ${cust.points})" class="btn-sweet bg-sky-50 hover:bg-sky-100 text-sky-600 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-sky-200 transition">
-                            <i class="fa-solid fa-pen-to-square mr-1"></i> แก้ไขแต้ม
-                        </button>
-                    </td>
-                `;
+
+                const tdName = document.createElement('td');
+                tdName.className = "p-3.5 font-semibold text-slate-800";
+                tdName.textContent = cust.customer_name;
+
+                const tdPin = document.createElement('td');
+                tdPin.className = "p-3.5 font-mono text-slate-500";
+                tdPin.textContent = cust.customer_pin || '----';
+
+                const tdAmount = document.createElement('td');
+                tdAmount.className = "p-3.5";
+                tdAmount.textContent = `฿${Number(cust.total_amount || 0).toLocaleString()}`;
+
+                const tdPoints = document.createElement('td');
+                tdPoints.className = "p-3.5 font-bold text-sky-600";
+                tdPoints.textContent = `${cust.total_points || 0} แต้ม`;
+
+                const tdAction = document.createElement('td');
+                tdAction.className = "p-3.5 text-center";
+                const btnEdit = document.createElement('button');
+                btnEdit.type = "button";
+                btnEdit.className = "btn-sweet bg-sky-50 hover:bg-sky-100 text-sky-600 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-sky-200 transition";
+                btnEdit.innerHTML = `<i class="fa-solid fa-pen-to-square mr-1"></i> แก้ไขแต้ม`;
+                btnEdit.onclick = () => openEditPointsModal(cust.id, cust.customer_name, cust.total_points || 0);
+                tdAction.appendChild(btnEdit);
+
+                tr.appendChild(tdName);
+                tr.appendChild(tdPin);
+                tr.appendChild(tdAmount);
+                tr.appendChild(tdPoints);
+                tr.appendChild(tdAction);
                 tbody.appendChild(tr);
             });
         }
 
-        function openEditPointsModal(name, currentPoints) {
-            editingCustomerKey = name;
+        function openEditPointsModal(customerId, name, currentPoints) {
+            editingCustomerId = customerId;
+            editingCustomerName = name;
             document.getElementById('editPointsCustomerName').textContent = `ลูกค้า: ${name}`;
             document.getElementById('newPointsInput').value = currentPoints;
             document.getElementById('editPointsModal').classList.remove('hidden');
@@ -2157,44 +2656,37 @@
 
         function closeEditPointsModal() {
             document.getElementById('editPointsModal').classList.add('hidden');
-            editingCustomerKey = null;
+            editingCustomerId = null;
+            editingCustomerName = null;
         }
 
-        function saveCustomerPoints() {
+        async function saveCustomerPoints() {
+            const btnSave = document.getElementById('btnSavePoints');
+            btnSave.disabled = true;
+
             const newPoints = parseInt(document.getElementById('newPointsInput').value);
             if (isNaN(newPoints) || newPoints < 0) {
                 showToast("กรุณากรอกจำนวนแต้มให้ถูกต้อง", "error");
+                btnSave.disabled = false;
                 return;
             }
 
-            const approvedSlips = slipRecords.filter(s => s.customerName.toLowerCase() === editingCustomerKey.toLowerCase() && s.status === 'approved');
-            
-            if (approvedSlips.length > 0) {
-                approvedSlips.forEach((s, idx) => {
-                    if (idx === 0) {
-                        s.pointsCalculated = newPoints;
-                    } else {
-                        s.pointsCalculated = 0;
-                    }
-                });
-            } else {
-                const refSlip = slipRecords.find(s => s.customerName.toLowerCase() === editingCustomerKey.toLowerCase());
-                slipRecords.unshift({
-                    id: "manual_" + Date.now(),
-                    customerName: editingCustomerKey,
-                    customerPin: refSlip ? refSlip.customerPin : "0000",
-                    amount: 0,
-                    pointsCalculated: newPoints,
-                    slipImage: "https://placehold.co/400x400/e0f2fe/0284c7?text=Manual+Point+Adjust",
-                    timestamp: new Date().toLocaleString('th-TH'),
-                    status: "approved"
-                });
-            }
+            try {
+                const { error } = await supabaseClient
+                    .from('customers')
+                    .update({ total_points: newPoints })
+                    .eq('id', editingCustomerId);
 
-            showToast("ปรับปรุงแต้มสะสมเรียบร้อยแล้ว", "success");
-            closeEditPointsModal();
-            renderAdminCustomerPointsTable();
-            renderAdminSlipsList();
+                if (error) throw error;
+
+                showToast("ปรับปรุงแต้มสะสมเรียบร้อยแล้ว", "success");
+                closeEditPointsModal();
+                await loadAdminData();
+            } catch (err) {
+                showToast("เกิดข้อผิดพลาดในการบันทึกแต้ม: " + (err.message || ""), "error");
+            } finally {
+                btnSave.disabled = false;
+            }
         }
 
         function previewAdminQrImage(event) {
@@ -2219,57 +2711,82 @@
             reader.readAsDataURL(file);
         }
 
-        function handleSaveShopSettings(e) {
+        async function handleSaveShopSettings(e) {
             e.preventDefault();
+            const btnSave = document.getElementById('btnSaveShopSettings');
+            btnSave.disabled = true;
 
-            shopSettings.shopName = document.getElementById('editShopName').value.trim();
-            
-            const emailVal = document.getElementById('editAdminEmail').value.trim();
-            if (emailVal) {
-                shopSettings.adminEmail = emailVal;
-                document.getElementById('loggedInAdminEmailText').textContent = emailVal;
-            }
+            try {
+                shopSettings.shopName = document.getElementById('editShopName').value.trim();
 
-            const passcodeVal = document.getElementById('editAdminPasscode').value.trim();
-            if (passcodeVal) {
-                shopSettings.adminPasscode = passcodeVal;
-            }
-
-            const pointRate = parseFloat(document.getElementById('editAmountPerPoint').value);
-            if (!isNaN(pointRate) && pointRate > 0) {
-                shopSettings.amountPerPoint = pointRate;
-            }
-
-            shopSettings.remarkText = document.getElementById('editRemarkText').value.trim();
-            shopSettings.contactLine = document.getElementById('editContactLine').value.trim();
-            shopSettings.contactLineUrl = document.getElementById('editContactLineUrl').value.trim();
-            shopSettings.contactPhone = document.getElementById('editContactPhone').value.trim();
-            shopSettings.contactPhoneUrl = document.getElementById('editContactPhoneUrl').value.trim();
-            shopSettings.contactFacebook = document.getElementById('editContactFacebook').value.trim();
-            shopSettings.contactFacebookUrl = document.getElementById('editContactFacebookUrl').value.trim();
-
-            const musicUrlInput = document.getElementById('editMusicUrl').value.trim();
-            if (musicUrlInput !== shopSettings.musicUrl) {
-                const wasPlaying = isPlayingAudio;
-                shopSettings.musicUrl = musicUrlInput;
-                setupAudio();
-                if (wasPlaying && musicUrlInput) {
-                    toggleAudio();
+                const pointRate = parseFloat(document.getElementById('editAmountPerPoint').value);
+                if (!isNaN(pointRate) && pointRate > 0) {
+                    shopSettings.amountPerPoint = pointRate;
                 }
-            }
 
-            if (tempAdminQrBase64) {
-                shopSettings.qrImage = tempAdminQrBase64;
-                tempAdminQrBase64 = '';
-            }
+                shopSettings.remarkText = document.getElementById('editRemarkText').value.trim();
+                shopSettings.contactLine = document.getElementById('editContactLine').value.trim();
+                shopSettings.contactLineUrl = document.getElementById('editContactLineUrl').value.trim();
+                shopSettings.contactPhone = document.getElementById('editContactPhone').value.trim();
+                shopSettings.contactPhoneUrl = document.getElementById('editContactPhoneUrl').value.trim();
+                shopSettings.contactFacebook = document.getElementById('editContactFacebook').value.trim();
+                shopSettings.contactFacebookUrl = document.getElementById('editContactFacebookUrl').value.trim();
 
-            if (tempAdminLogoBase64) {
-                shopSettings.shopLogo = tempAdminLogoBase64;
-                tempAdminLogoBase64 = '';
-            }
+                const musicUrlInput = document.getElementById('editMusicUrl').value.trim();
+                if (musicUrlInput !== shopSettings.musicUrl) {
+                    const wasPlaying = isPlayingAudio;
+                    shopSettings.musicUrl = musicUrlInput;
+                    setupAudio();
+                    if (wasPlaying && musicUrlInput) {
+                        toggleAudio();
+                    }
+                }
 
-            renderSettingsUI();
-            showToast("บันทึกข้อมูลตั้งค่าร้านค้าเรียบร้อยแล้ว", "success");
+                // 1. Update shop_settings
+                await updateShopSettingsDB({
+                    shop_name: shopSettings.shopName,
+                    amount_per_point: shopSettings.amountPerPoint,
+                    remark_text: shopSettings.remarkText,
+                    contact_line: shopSettings.contactLine,
+                    contact_line_url: shopSettings.contactLineUrl,
+                    contact_phone: shopSettings.contactPhone,
+                    contact_phone_url: shopSettings.contactPhoneUrl,
+                    contact_facebook: shopSettings.contactFacebook,
+                    contact_facebook_url: shopSettings.contactFacebookUrl,
+                    music_url: shopSettings.musicUrl
+                });
+
+                // 2. Sync bank_accounts
+                for (let i = 0; i < bankAccounts.length; i++) {
+                    const acc = bankAccounts[i];
+                    if (acc.id && !acc.id.toString().startsWith('temp_')) {
+                        const { error } = await supabaseClient.from('bank_accounts').update({
+                            channel: acc.channel,
+                            account_name: acc.name,
+                            account_number: acc.number,
+                            sort_order: i
+                        }).eq('id', acc.id);
+                        if (error) throw error;
+                    } else {
+                        const { error } = await supabaseClient.from('bank_accounts').insert({
+                            channel: acc.channel,
+                            account_name: acc.name,
+                            account_number: acc.number,
+                            sort_order: i
+                        });
+                        if (error) throw error;
+                    }
+                }
+
+                await loadPublicData();
+                renderSettingsUI();
+                showToast("บันทึกข้อมูลตั้งค่าร้านค้าเรียบร้อยแล้ว", "success");
+            } catch (err) {
+                console.error("Save shop settings error:", err);
+                showToast("เกิดข้อผิดพลาดในการบันทึกการตั้งค่า: " + (err.message || ""), "error");
+            } finally {
+                btnSave.disabled = false;
+            }
         }
 
         function renderSettingsUI() {
@@ -2294,11 +2811,11 @@
             document.getElementById('linkContactFacebook').href = shopSettings.contactFacebookUrl || '#';
 
             document.getElementById('editShopName').value = shopSettings.shopName;
-            document.getElementById('editAdminEmail').value = shopSettings.adminEmail || "admin@smartpay.com";
-            document.getElementById('editAdminPasscode').value = shopSettings.adminPasscode || "1234";
+            document.getElementById('editAdminEmail').value = loggedInAdminEmail || shopSettings.adminEmail || "admin@smartpay.com";
             document.getElementById('adminShopLogoPreview').src = shopSettings.shopLogo;
             document.getElementById('editAmountPerPoint').value = shopSettings.amountPerPoint || 100;
             renderAdminBankAccountsInputs();
+            renderAdminBubblesInputs();
 
             document.getElementById('editRemarkText').value = shopSettings.remarkText;
             document.getElementById('adminQrPreview').src = shopSettings.qrImage;
@@ -2338,11 +2855,6 @@
             setTimeout(() => {
                 toast.classList.add('hidden');
             }, 3500);
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
 </body>
