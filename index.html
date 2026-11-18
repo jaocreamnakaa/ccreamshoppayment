@@ -233,7 +233,7 @@
 
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1.5"><span id="step3SlipLabelText">แนบรูปภาพสลิปการโอนเงิน</span> <span class="text-sky-400">*</span></label>
-                            <input type="file" id="slipFileInput" accept="image/*" required onchange="previewSlipImage(event)" class="hidden">
+                            <input type="file" id="slipFileInput" accept="image/jpeg,image/png,image/webp" required onchange="previewSlipImage(event)" class="hidden">
                             
                             <label for="slipFileInput" class="border-2 border-dashed border-sky-200 hover:border-sky-300 bg-sky-50/20 hover:bg-sky-50/40 rounded-3xl p-5 flex flex-col items-center justify-center cursor-pointer transition text-center min-h-[140px]">
                                 <div id="uploadPlaceholder" class="space-y-2">
@@ -241,7 +241,7 @@
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
                                     <p id="step3UploadTitleText" class="text-sm font-semibold text-sky-600">คลิกเพื่อเลือกรูปภาพสลิป</p>
-                                    <p id="step3UploadSubText" class="text-xs text-slate-400">รองรับไฟล์ภาพ JPG, PNG (บีบอัดภาพให้อัตโนมัติ)</p>
+                                    <p id="step3UploadSubText" class="text-xs text-slate-400">รองรับไฟล์ภาพ JPG, PNG, WEBP ขนาดไม่เกิน 5MB</p>
                                 </div>
                                 <img id="slipPreviewImage" class="hidden max-h-48 rounded-2xl object-contain border-2 border-sky-200 shadow-sm" alt="Slip Preview">
                             </label>
@@ -336,7 +336,7 @@
                     </div>
 
                     <div class="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto pt-4">
-                        <a id="linkContactLine" href="#" target="_blank" class="p-4 bg-emerald-50/70 hover:bg-emerald-100/70 rounded-2xl border border-emerald-200 flex items-center space-x-3 transition group">
+                        <a id="linkContactLine" href="#" target="_blank" rel="noopener noreferrer" class="p-4 bg-emerald-50/70 hover:bg-emerald-100/70 rounded-2xl border border-emerald-200 flex items-center space-x-3 transition group">
                             <div class="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xl shrink-0 shadow-xs group-hover:scale-105 transition">
                                 <i class="fa-brands fa-line"></i>
                             </div>
@@ -356,7 +356,7 @@
                             </div>
                         </a>
 
-                        <a id="linkContactFacebook" href="#" target="_blank" class="p-4 bg-blue-50/70 hover:bg-blue-100/70 rounded-2xl border border-blue-200 flex items-center space-x-3 sm:col-span-2 transition group">
+                        <a id="linkContactFacebook" href="#" target="_blank" rel="noopener noreferrer" class="p-4 bg-blue-50/70 hover:bg-blue-100/70 rounded-2xl border border-blue-200 flex items-center space-x-3 sm:col-span-2 transition group">
                             <div class="w-11 h-11 rounded-full bg-blue-500 text-white flex items-center justify-center text-xl shrink-0 shadow-xs group-hover:scale-105 transition">
                                 <i class="fa-brands fa-facebook"></i>
                             </div>
@@ -474,7 +474,7 @@
                 </div>
             </section>
 
-            <!-- ADMIN TAB 4: Full Site Text Editor (แก้ไขข้อความได้ทุกจุดของเว็บไซต์) -->
+            <!-- ADMIN TAB 4: Full Site Text Editor -->
             <section id="sec-admin-texts" class="hidden space-y-4">
                 <form onsubmit="handleSaveSiteTexts(event)" class="bg-white card-sweet p-5 md:p-6 border-2 border-sky-100/70 space-y-6">
                     <div class="flex flex-wrap justify-between items-center gap-2 border-b border-sky-100 pb-3">
@@ -668,11 +668,11 @@
                             </div>
                             <div class="space-y-2 flex-grow w-full">
                                 <div>
-                                    <input type="file" id="adminLogoFileInput" accept="image/*" onchange="previewAdminLogoImage(event)" class="hidden">
+                                    <input type="file" id="adminLogoFileInput" accept="image/jpeg,image/png,image/webp" onchange="previewAdminLogoImage(event)" class="hidden">
                                     <label for="adminLogoFileInput" class="btn-sweet bg-white hover:bg-sky-100 text-sky-600 px-4 py-1.5 rounded-full text-xs font-semibold border border-sky-200 cursor-pointer transition inline-block shadow-xs">
                                         <i class="fa-solid fa-crop-simple mr-1"></i> เลือกและครอบตัดรูปโลโก้ร้าน
                                     </label>
-                                    <span class="text-[11px] text-slate-400 ml-2">อัปโหลดไปยัง Storage อัตโนมัติ</span>
+                                    <span class="text-[11px] text-slate-400 ml-2">รองรับ JPG, PNG, WEBP ไม่เกิน 5MB</span>
                                 </div>
                                 <div>
                                     <label for="editShopName" class="block text-xs font-medium text-slate-600 mb-1">จุดใส่ชื่อร้านค้า</label>
@@ -717,11 +717,11 @@
                         <div class="flex items-center space-x-4">
                             <img id="adminQrPreview" src="https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment" class="w-20 h-20 rounded-2xl border-2 border-sky-200 object-contain bg-sky-50/30" alt="Admin QR Preview">
                             <div>
-                                <input type="file" id="adminQrFileInput" accept="image/*" onchange="previewAdminQrImage(event)" class="hidden">
+                                <input type="file" id="adminQrFileInput" accept="image/jpeg,image/png,image/webp" onchange="previewAdminQrImage(event)" class="hidden">
                                 <label for="adminQrFileInput" class="btn-sweet bg-sky-100 hover:bg-sky-200 text-sky-700 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition inline-block">
                                     <i class="fa-solid fa-crop-simple mr-1"></i> เลือกและครอบตัดรูป QR Code
                                 </label>
-                                <p class="text-[11px] text-slate-400 mt-1.5">อัปโหลดไปยัง Storage อัตโนมัติ</p>
+                                <p class="text-[11px] text-slate-400 mt-1.5">รองรับ JPG, PNG, WEBP ไม่เกิน 5MB</p>
                             </div>
                         </div>
                     </div>
@@ -774,7 +774,7 @@
             <div class="space-y-2.5 text-left">
                 <div>
                     <label class="text-[11px] font-medium text-slate-500 pl-2">อีเมลแอดมิน</label>
-                    <input type="email" id="adminEmailInput" placeholder="admin@smartpay.com" onkeyup="if(event.key==='Enter') verifyAdminPasscode()" class="w-full px-4 py-2.5 border border-sky-200 rounded-full text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none">
+                    <input type="email" id="adminEmailInput" placeholder="กรอกอีเมลแอดมิน" onkeyup="if(event.key==='Enter') verifyAdminPasscode()" class="w-full px-4 py-2.5 border border-sky-200 rounded-full text-sm focus:ring-2 focus:ring-sky-300 focus:outline-none">
                 </div>
                 <div>
                     <label class="text-[11px] font-medium text-slate-500 pl-2">รหัสผ่าน</label>
@@ -862,11 +862,55 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // ================= SUPABASE CONFIGURATION =================
+        // ================= SUPABASE CONFIGURATION (ONLY ANON PUBLIC KEY) =================
         const SUPABASE_URL = 'https://uyipbjwgmavzpdgpecda.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5aXBiandnbWF2enBkZ3BlY2RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwNDU2NDIsImV4cCI6MjEwOTYyMTY0Mn0.oWAJWEtVFF2mV1-Lkr4GprYxMC93QAPiof_6OaSZ6Lw';
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ================= FILE UPLOAD VALIDATION CONSTANTS =================
+        const ALLOWED_IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+        const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+        function validateImageFile(file) {
+            if (!file) {
+                return { valid: false, message: "กรุณาเลือกไฟล์รูปภาพ" };
+            }
+            if (!ALLOWED_IMAGE_MIME_TYPES.includes(file.type)) {
+                return { valid: false, message: "รองรับเฉพาะไฟล์รูปภาพ JPG, PNG หรือ WEBP เท่านั้น" };
+            }
+            if (file.size > MAX_IMAGE_FILE_SIZE) {
+                return { valid: false, message: "ขนาดไฟล์รูปภาพต้องไม่เกิน 5MB" };
+            }
+            return { valid: true };
+        }
+
+        function generateUniqueFileName(prefix) {
+            const uuid = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : `${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+            return `${prefix}_${uuid}.jpg`;
+        }
+
+        function sanitizeUrl(url, allowTel = false) {
+            if (!url || typeof url !== 'string') return '#';
+            const trimmed = url.trim();
+            if (trimmed === '#') return '#';
+            try {
+                const parsed = new URL(trimmed, window.location.origin);
+                if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+                    return parsed.href;
+                }
+                if (allowTel && (parsed.protocol === 'tel:' || parsed.protocol === 'mailto:')) {
+                    return trimmed;
+                }
+            } catch (e) {
+                if (allowTel && /^tel:[0-9+\-\s()]+$/i.test(trimmed)) {
+                    return trimmed;
+                }
+            }
+            return '#';
+        }
 
         // ================= DEFAULT SITE TEXTS =================
         const DEFAULT_SITE_TEXTS = {
@@ -886,7 +930,7 @@
             step3AmountLabel: "จำนวนเงินที่โอน (บาท)",
             step3SlipLabel: "แนบรูปภาพสลิปการโอนเงิน",
             step3UploadTitle: "คลิกเพื่อเลือกรูปภาพสลิป",
-            step3UploadSub: "รองรับไฟล์ภาพ JPG, PNG (บีบอัดภาพให้อัตโนมัติ)",
+            step3UploadSub: "รองรับไฟล์ภาพ JPG, PNG, WEBP ขนาดไม่เกิน 5MB",
             step3SubmitBtn: "ส่งสลิปแจ้งชำระเงิน",
             pointsPageTitle: "ยืนยันชื่อ & รหัส PIN ส่วนตัวเพื่อดูแต้มและประวัติ",
             pointsSearchBtn: "เข้าดูข้อมูลส่วนตัว",
@@ -900,7 +944,7 @@
         let shopSettings = {
             shopName: "ร้านค้าสมาร์ทเพย์",
             shopLogo: "https://placehold.co/150x150/38bdf8/ffffff?text=Logo",
-            adminEmail: "admin@smartpay.com",
+            adminEmail: "",
             remarkText: "ชำระค่าสินค้าสะสมแต้ม",
             qrImage: "https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment",
             contactLine: "@smartpay_shop",
@@ -1070,11 +1114,11 @@
                 showToast("กำลังอัปโหลดรูปภาพไปยังระบบ...", "success");
                 const res = await fetch(base64Data);
                 const blob = await res.blob();
-                const filePath = `${assetType}_${Date.now()}.jpg`;
+                const filePath = generateUniqueFileName(assetType);
 
                 const { error: uploadError } = await supabaseClient.storage
                     .from('shop-assets')
-                    .upload(filePath, blob, { upsert: true });
+                    .upload(filePath, blob, { contentType: 'image/jpeg', upsert: false });
 
                 if (uploadError) throw uploadError;
 
@@ -1097,8 +1141,7 @@
                 }
                 renderSettingsUI();
             } catch (err) {
-                console.error("Upload asset error:", err);
-                showToast("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " + (err.message || "โปรดลองอีกครั้ง"), "error");
+                showToast("ไม่สามารถอัปโหลดรูปภาพได้ กรุณาตรวจสอบสิทธิ์แอดมินหรือไฟล์รูปภาพ", "error");
             }
         }
 
@@ -1128,13 +1171,12 @@
                     }
                 }
             } catch (err) {
-                console.error("Session verification error:", err);
+                isAdminLoggedIn = false;
             }
         }
 
         async function loadPublicData() {
             try {
-                // 1. Load shop_settings
                 const { data: settingsData, error: settingsErr } = await supabaseClient
                     .from('shop_settings')
                     .select('*')
@@ -1147,7 +1189,7 @@
                     shopSettings = {
                         shopName: settingsData.shop_name || "ร้านค้าสมาร์ทเพย์",
                         shopLogo: settingsData.shop_logo || "https://placehold.co/150x150/38bdf8/ffffff?text=Logo",
-                        adminEmail: settingsData.admin_email || "admin@smartpay.com",
+                        adminEmail: "",
                         remarkText: settingsData.remark_text || "ชำระค่าสินค้าสะสมแต้ม",
                         qrImage: settingsData.qr_image || "https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment",
                         contactLine: settingsData.contact_line || "@smartpay_shop",
@@ -1164,7 +1206,6 @@
                     };
                 }
 
-                // 2. Load bank_accounts
                 const { data: banksData, error: banksErr } = await supabaseClient
                     .from('bank_accounts')
                     .select('*')
@@ -1178,7 +1219,6 @@
                     number: b.account_number
                 }));
 
-                // 3. Load bubbles
                 const { data: bubblesData, error: bubblesErr } = await supabaseClient
                     .from('bubbles')
                     .select('*')
@@ -1192,9 +1232,8 @@
                 }));
 
             } catch (err) {
-                console.error("Load public data error:", err);
-                showToast("เกิดข้อผิดพลาดในการโหลดข้อมูลร้านค้า", "error");
-                document.getElementById('customerBankAccountsList').innerHTML = `<p class="text-xs text-rose-500 text-center py-2">เกิดข้อผิดพลาดในการโหลดบัญชีธนาคาร</p>`;
+                showToast("ไม่สามารถโหลดข้อมูลร้านค้าได้ กรุณารีเฟรชหน้าเว็บ", "error");
+                document.getElementById('customerBankAccountsList').innerHTML = `<p class="text-xs text-rose-500 text-center py-2">ไม่สามารถโหลดข้อมูลบัญชีธนาคารได้ในขณะนี้</p>`;
             }
         }
 
@@ -1255,7 +1294,15 @@
                 updateAudioButtonState(true);
             } else if (parsed.type === 'embed') {
                 const embedContainer = document.getElementById('embedMusicContainer');
-                embedContainer.innerHTML = `<iframe id="musicIframe" src="${parsed.src}" width="300" height="80" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" frameborder="0"></iframe>`;
+                embedContainer.innerHTML = '';
+                const iframe = document.createElement('iframe');
+                iframe.id = 'musicIframe';
+                iframe.src = parsed.src;
+                iframe.width = '300';
+                iframe.height = '80';
+                iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+                iframe.frameBorder = '0';
+                embedContainer.appendChild(iframe);
                 isPlayingAudio = true;
                 updateAudioButtonState(true);
             } else {
@@ -1377,8 +1424,7 @@
                 renderSiteTextsUI();
                 showToast("บันทึกข้อความทุกจุดบนเว็บไซต์เรียบร้อยแล้ว", "success");
             } catch (err) {
-                console.error("Save site texts error:", err);
-                showToast("เกิดข้อผิดพลาดในการบันทึกข้อความ: " + (err.message || ""), "error");
+                showToast("ไม่สามารถบันทึกข้อความได้ กรุณาลองใหม่อีกครั้ง", "error");
             } finally {
                 btnSave.disabled = false;
             }
@@ -1393,7 +1439,7 @@
                 renderSiteTextsUI();
                 showToast("คืนค่าข้อความเริ่มต้นเรียบร้อยแล้ว", "success");
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการคืนค่าข้อความ", "error");
+                showToast("ไม่สามารถคืนค่าข้อความได้ กรุณาลองใหม่อีกครั้ง", "error");
             } finally {
                 btnReset.disabled = false;
             }
@@ -1430,7 +1476,6 @@
 
                 if (authErr) throw authErr;
 
-                // ตรวจสอบสิทธิ์ผ่าน RPC is_admin()
                 const { data: isAdmin, error: rpcErr } = await supabaseClient.rpc('is_admin');
 
                 if (rpcErr || isAdmin !== true) {
@@ -1448,7 +1493,6 @@
                 showToast("เข้าสู่ระบบแอดมินสำเร็จ ยินดีต้อนรับค่ะ", "success");
                 applyRoleChange('admin');
             } catch (err) {
-                console.error("Admin login error:", err);
                 showToast("อีเมลหรือรหัสผ่านแอดมินไม่ถูกต้อง!", "error");
             } finally {
                 btnSubmit.disabled = false;
@@ -1468,7 +1512,7 @@
             applyRoleChange('customer');
         }
 
-        // ================= CHECK DUPLICATE CUSTOMER NAME (ANTI-IMPERSONATION) =================
+        // ================= CHECK DUPLICATE CUSTOMER NAME (SAFE BOOLEAN RPC) =================
         let duplicateCheckTimer = null;
         function checkDuplicateCustomerName() {
             const inputVal = document.getElementById('customerNameInput').value.trim();
@@ -1481,29 +1525,18 @@
             clearTimeout(duplicateCheckTimer);
             duplicateCheckTimer = setTimeout(async () => {
                 try {
-                    // ใช้ verify_customer_points ด้วย PIN ปลอมเพื่อตรวจสอบว่าชื่อมีในระบบหรือไม่ (โดยไม่เปิดเผย PIN จริง)
-                    const { data, error } = await supabaseClient.rpc('verify_customer_points', {
-                        p_customer_name: inputVal,
-                        p_customer_pin: '0000'
+                    const { data: exists, error } = await supabaseClient.rpc('check_customer_name_exists', {
+                        p_customer_name: inputVal
                     });
-                    if (!error && data && data.success === true) {
+                    if (!error && exists === true) {
                         notice.classList.remove('hidden');
                     } else {
-                        // ลองเช็กอีก 1 PIN เผื่อตั้งไว้ 0000
-                        const { data: data2 } = await supabaseClient.rpc('verify_customer_points', {
-                            p_customer_name: inputVal,
-                            p_customer_pin: '9999'
-                        });
-                        if (data2 && data2.success === true) {
-                            notice.classList.remove('hidden');
-                        } else {
-                            notice.classList.add('hidden');
-                        }
+                        notice.classList.add('hidden');
                     }
                 } catch (e) {
                     notice.classList.add('hidden');
                 }
-            }, 400);
+            }, 450);
         }
 
         // ================= UNIVERSAL AUDIO & EMBED MUSIC CONTROLS =================
@@ -1516,7 +1549,8 @@
 
         function parseEmbedMusicUrl(url) {
             if (!url) return { type: 'none', src: '' };
-            const cleanUrl = url.trim();
+            const cleanUrl = sanitizeUrl(url.trim(), false);
+            if (cleanUrl === '#') return { type: 'none', src: '' };
 
             if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
                 const videoId = extractYouTubeVideoId(cleanUrl);
@@ -1620,7 +1654,7 @@
 
             const parsed = parseEmbedMusicUrl(url);
 
-            if (parsed.type === 'audio') {
+            if (parsed.type === 'audio' && parsed.src) {
                 audio.src = parsed.src;
                 audio.load();
                 const volumeSlider = document.getElementById('volumeSlider');
@@ -1692,7 +1726,15 @@
                             }
                         },
                         onError: function () {
-                            embedContainer.innerHTML = `<iframe id="musicIframe" src="${fallbackSrc}" width="200" height="200" allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+                            embedContainer.innerHTML = '';
+                            const iframe = document.createElement('iframe');
+                            iframe.id = 'musicIframe';
+                            iframe.src = fallbackSrc;
+                            iframe.width = '200';
+                            iframe.height = '200';
+                            iframe.allow = 'autoplay; encrypted-media';
+                            iframe.frameBorder = '0';
+                            embedContainer.appendChild(iframe);
                         }
                     }
                 });
@@ -1701,7 +1743,15 @@
             if (window.YT && window.YT.Player) {
                 initPlayer();
             } else {
-                embedContainer.innerHTML = `<iframe id="musicIframe" src="${fallbackSrc}" width="200" height="200" allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+                embedContainer.innerHTML = '';
+                const iframe = document.createElement('iframe');
+                iframe.id = 'musicIframe';
+                iframe.src = fallbackSrc;
+                iframe.width = '200';
+                iframe.height = '200';
+                iframe.allow = 'autoplay; encrypted-media';
+                iframe.frameBorder = '0';
+                embedContainer.appendChild(iframe);
                 loadYouTubeIframeAPI();
             }
         }
@@ -1735,11 +1785,19 @@
                 updateAudioButtonState(true);
                 showToast("เปิดเสียงเพลงบรรยากาศแล้ว", "success");
             } else if (parsed.type === 'embed') {
-                embedContainer.innerHTML = `<iframe id="musicIframe" src="${parsed.src}" width="300" height="80" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" frameborder="0"></iframe>`;
+                embedContainer.innerHTML = '';
+                const iframe = document.createElement('iframe');
+                iframe.id = 'musicIframe';
+                iframe.src = parsed.src;
+                iframe.width = '300';
+                iframe.height = '80';
+                iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+                iframe.frameBorder = '0';
+                embedContainer.appendChild(iframe);
                 isPlayingAudio = true;
                 updateAudioButtonState(true);
                 showToast("เปิดเสียงเพลงบรรยากาศแล้ว", "success");
-            } else {
+            } else if (parsed.type === 'audio' && parsed.src) {
                 if (audio.src !== parsed.src) {
                     audio.src = parsed.src;
                 }
@@ -1805,6 +1863,7 @@
                     isAdminLoggedIn = true;
                     loggedInAdminEmail = session.user.email || '';
                     document.getElementById('loggedInAdminEmailText').textContent = loggedInAdminEmail;
+                    document.getElementById('editAdminEmail').value = loggedInAdminEmail;
                 } catch (err) {
                     openAdminLoginModal();
                     return;
@@ -1875,6 +1934,29 @@
             }
         }
 
+        async function resolvePrivateSlipUrl(storedValue) {
+            if (!storedValue) return '';
+            if (storedValue.startsWith('http://') || storedValue.startsWith('https://')) {
+                const marker = '/payment-slips/';
+                const idx = storedValue.indexOf(marker);
+                if (idx !== -1) {
+                    const path = decodeURIComponent(storedValue.substring(idx + marker.length).split('?')[0]);
+                    const { data, error } = await supabaseClient.storage
+                        .from('payment-slips')
+                        .createSignedUrl(path, 3600);
+                    if (!error && data && data.signedUrl) return data.signedUrl;
+                }
+                return storedValue;
+            }
+            const { data, error } = await supabaseClient.storage
+                .from('payment-slips')
+                .createSignedUrl(storedValue, 3600);
+            if (!error && data && data.signedUrl) {
+                return data.signedUrl;
+            }
+            return '';
+        }
+
         async function loadAdminData() {
             const slipsContainer = document.getElementById('slipsListContainer');
             const pointsTbody = document.getElementById('adminCustomerPointsTable');
@@ -1883,7 +1965,6 @@
             pointsTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดข้อมูลลูกค้า...</td></tr>`;
 
             try {
-                // 1. Fetch Slips
                 const { data: slipsData, error: slipsErr } = await supabaseClient
                     .from('slips')
                     .select('*')
@@ -1891,19 +1972,24 @@
 
                 if (slipsErr) throw slipsErr;
 
-                slipRecords = (slipsData || []).map(s => ({
-                    id: s.id,
-                    customerId: s.customer_id,
-                    customerName: s.customer_name,
-                    customerPin: s.customer_pin,
-                    amount: Number(s.amount),
-                    pointsCalculated: s.points_calculated,
-                    slipImage: s.slip_image,
-                    timestamp: new Date(s.created_at).toLocaleString('th-TH'),
-                    status: s.status
+                const mappedSlips = await Promise.all((slipsData || []).map(async (s) => {
+                    const signedUrl = await resolvePrivateSlipUrl(s.slip_image);
+                    return {
+                        id: s.id,
+                        customerId: s.customer_id,
+                        customerName: s.customer_name,
+                        customerPin: s.customer_pin,
+                        amount: Number(s.amount),
+                        pointsCalculated: s.points_calculated,
+                        slipImage: signedUrl,
+                        rawSlipPath: s.slip_image,
+                        timestamp: new Date(s.created_at).toLocaleString('th-TH'),
+                        status: s.status
+                    };
                 }));
 
-                // 2. Fetch Customers
+                slipRecords = mappedSlips;
+
                 const { data: customersData, error: customersErr } = await supabaseClient
                     .from('customers')
                     .select('*')
@@ -1916,9 +2002,8 @@
                 renderAdminSlipsList();
                 renderAdminCustomerPointsTable();
             } catch (err) {
-                console.error("Load admin data error:", err);
-                slipsContainer.innerHTML = `<div class="p-8 text-center text-rose-500">เกิดข้อผิดพลาดในการโหลดรายการสลิป</div>`;
-                pointsTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rose-500">เกิดข้อผิดพลาดในการโหลดข้อมูลลูกค้า</td></tr>`;
+                slipsContainer.innerHTML = `<div class="p-8 text-center text-rose-500">ไม่สามารถโหลดรายการสลิปได้ กรุณาตรวจสอบสิทธิ์แอดมิน</div>`;
+                pointsTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-rose-500">ไม่สามารถโหลดข้อมูลลูกค้าได้</td></tr>`;
             }
         }
 
@@ -2013,7 +2098,7 @@
                     showToast("เพิ่มบับเบิ้ลเรียบร้อยแล้ว", "success");
                 }
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการเพิ่มบับเบิ้ล", "error");
+                showToast("ไม่สามารถเพิ่มบับเบิ้ลได้ กรุณาลองใหม่อีกครั้ง", "error");
             } finally {
                 btn.disabled = false;
             }
@@ -2030,7 +2115,7 @@
                 renderCustomerBubbles();
                 showToast("ลบบับเบิ้ลเรียบร้อยแล้ว", "success");
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการลบบับเบิ้ล", "error");
+                showToast("ไม่สามารถลบบับเบิ้ลได้ กรุณาลองใหม่อีกครั้ง", "error");
             }
         }
 
@@ -2043,7 +2128,7 @@
                 const { error } = await supabaseClient.from('bubbles').update({ text: val }).eq('id', b.id);
                 if (error) throw error;
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการอัปเดตข้อความบับเบิ้ล", "error");
+                showToast("ไม่สามารถบันทึกข้อความบับเบิ้ลได้", "error");
             }
         }
 
@@ -2056,7 +2141,7 @@
                 const { error } = await supabaseClient.from('bubbles').update({ is_active: b.active }).eq('id', b.id);
                 if (error) throw error;
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการเปลี่ยนสถานะบับเบิ้ล", "error");
+                showToast("ไม่สามารถเปลี่ยนสถานะบับเบิ้ลได้", "error");
             }
         }
 
@@ -2075,21 +2160,29 @@
                 div.className = "bg-sky-50/60 p-4 rounded-2xl border border-sky-100 space-y-2";
 
                 const block1 = document.createElement('div');
-                block1.innerHTML = `<span class="text-xs text-slate-400 block">ช่องทางการโอนเงิน #${idx + 1}</span>`;
+                const lbl1 = document.createElement('span');
+                lbl1.className = "text-xs text-slate-400 block";
+                lbl1.textContent = `ช่องทางการโอนเงิน #${idx + 1}`;
                 const val1 = document.createElement('span');
                 val1.className = "font-semibold text-sky-600 text-sm";
                 val1.textContent = acc.channel;
+                block1.appendChild(lbl1);
                 block1.appendChild(val1);
 
                 const block2 = document.createElement('div');
-                block2.innerHTML = `<span class="text-xs text-slate-400 block">ชื่อบัญชี</span>`;
+                const lbl2 = document.createElement('span');
+                lbl2.className = "text-xs text-slate-400 block";
+                lbl2.textContent = "ชื่อบัญชี";
                 const val2 = document.createElement('span');
                 val2.className = "font-semibold text-slate-700 text-sm";
                 val2.textContent = acc.name;
+                block2.appendChild(lbl2);
                 block2.appendChild(val2);
 
                 const block3 = document.createElement('div');
-                block3.innerHTML = `<span class="text-xs text-slate-400 block">เลขที่บัญชี</span>`;
+                const lbl3 = document.createElement('span');
+                lbl3.className = "text-xs text-slate-400 block";
+                lbl3.textContent = "เลขที่บัญชี";
                 const row3 = document.createElement('div');
                 row3.className = "flex items-center space-x-2 mt-0.5";
                 const val3 = document.createElement('span');
@@ -2099,11 +2192,15 @@
                 const copyBtn = document.createElement('button');
                 copyBtn.type = "button";
                 copyBtn.className = "btn-sweet bg-white hover:bg-sky-50 text-sky-500 px-3 py-1 rounded-full border border-sky-200 text-xs font-medium shadow-xs transition";
-                copyBtn.innerHTML = `<i class="fa-regular fa-copy"></i> คัดลอก`;
+                const copyIcon = document.createElement('i');
+                copyIcon.className = "fa-regular fa-copy mr-1";
+                copyBtn.appendChild(copyIcon);
+                copyBtn.appendChild(document.createTextNode("คัดลอก"));
                 copyBtn.onclick = () => copyToClipboard(acc.number, 'คัดลอกเลขบัญชีเรียบร้อยแล้ว');
 
                 row3.appendChild(val3);
                 row3.appendChild(copyBtn);
+                block3.appendChild(lbl3);
                 block3.appendChild(row3);
 
                 div.appendChild(block1);
@@ -2201,7 +2298,7 @@
                 renderAdminBankAccountsInputs();
                 showToast("ลบบัญชีธนาคารเรียบร้อยแล้ว", "success");
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการลบบัญชีธนาคาร", "error");
+                showToast("ไม่สามารถลบบัญชีธนาคารได้ กรุณาลองใหม่อีกครั้ง", "error");
             }
         }
 
@@ -2211,6 +2308,18 @@
         }
 
         function copyToClipboard(text, successMsg) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(successMsg, "success");
+                }).catch(() => {
+                    fallbackCopy(text, successMsg);
+                });
+            } else {
+                fallbackCopy(text, successMsg);
+            }
+        }
+
+        function fallbackCopy(text, successMsg) {
             const tempInput = document.createElement("input");
             tempInput.value = text;
             document.body.appendChild(tempInput);
@@ -2224,7 +2333,15 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            compressImage(file, 800, 800, 0.7, function (compressedBase64) {
+            const validation = validateImageFile(file);
+            if (!validation.valid) {
+                showToast(validation.message, "error");
+                event.target.value = '';
+                selectedSlipImageBase64 = '';
+                return;
+            }
+
+            compressImage(file, 800, 800, 0.75, function (compressedBase64) {
                 selectedSlipImageBase64 = compressedBase64;
                 const previewImg = document.getElementById('slipPreviewImage');
                 const placeholder = document.getElementById('uploadPlaceholder');
@@ -2267,35 +2384,35 @@
             try {
                 showToast("กำลังอัปโหลดสลิปและส่งข้อมูล...", "success");
 
-                // 1. Upload Slip Image to Supabase Storage Bucket 'payment-slips'
                 const res = await fetch(selectedSlipImageBase64);
                 const blob = await res.blob();
-                const filePath = `slip_${Date.now()}.jpg`;
+
+                if (blob.size > MAX_IMAGE_FILE_SIZE) {
+                    showToast("ขนาดไฟล์สลิปเกิน 5MB กรุณาเลือกไฟล์ใหม่", "error");
+                    btnSubmit.disabled = false;
+                    return;
+                }
+
+                const filePath = generateUniqueFileName('slip');
 
                 const { error: uploadErr } = await supabaseClient.storage
                     .from('payment-slips')
-                    .upload(filePath, blob, { upsert: true });
+                    .upload(filePath, blob, { contentType: 'image/jpeg', upsert: false });
 
                 if (uploadErr) throw uploadErr;
 
-                const { data: pubData } = supabaseClient.storage
-                    .from('payment-slips')
-                    .getPublicUrl(filePath);
-
-                const slipUrl = pubData.publicUrl;
-
-                // 2. Call RPC `submit_customer_slip`
+                // บันทึกเฉพาะ path ของไฟล์ลงในฐานข้อมูล (ไม่เก็บ Public URL เพราะเป็น Private Bucket)
                 const { data: rpcRes, error: rpcErr } = await supabaseClient.rpc('submit_customer_slip', {
                     p_customer_name: nameInput,
                     p_customer_pin: pinInput,
                     p_amount: amountInput,
-                    p_slip_image: slipUrl
+                    p_slip_image: filePath
                 });
 
                 if (rpcErr) throw rpcErr;
 
                 if (!rpcRes || rpcRes.success !== true) {
-                    showToast((rpcRes && rpcRes.message) || "ไม่สามารถส่งสลิปได้", "error");
+                    showToast((rpcRes && rpcRes.message) || "ไม่สามารถส่งสลิปได้ กรุณาตรวจสอบข้อมูลอีกครั้ง", "error");
                     btnSubmit.disabled = false;
                     return;
                 }
@@ -2310,8 +2427,7 @@
 
                 showToast("ส่งสลิปเรียบร้อยแล้ว! โปรดจำชื่อและ PIN 4 หลักไว้เช็กแต้มค่ะ", "success");
             } catch (err) {
-                console.error("Submit slip error:", err);
-                showToast("เกิดข้อผิดพลาดในการส่งสลิป: " + (err.message || "โปรดลองอีกครั้ง"), "error");
+                showToast("ไม่สามารถส่งสลิปได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่", "error");
             } finally {
                 btnSubmit.disabled = false;
             }
@@ -2360,7 +2476,13 @@
                 const historyList = rpcRes.history || [];
 
                 if (historyList.length === 0) {
-                    historyTable.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">ไม่มีประวัติการโอนเงิน</td></tr>`;
+                    const trEmpty = document.createElement('tr');
+                    const tdEmpty = document.createElement('td');
+                    tdEmpty.colSpan = 4;
+                    tdEmpty.className = "p-4 text-center text-slate-400";
+                    tdEmpty.textContent = "ไม่มีประวัติการโอนเงิน";
+                    trEmpty.appendChild(tdEmpty);
+                    historyTable.appendChild(trEmpty);
                 } else {
                     historyList.forEach(s => {
                         const tr = document.createElement('tr');
@@ -2403,8 +2525,7 @@
                 historySec.classList.remove('hidden');
                 showToast("ยืนยันตัวตนสำเร็จ แสดงข้อมูลแต้มสะสมส่วนตัว", "success");
             } catch (err) {
-                console.error("Search customer points error:", err);
-                showToast("เกิดข้อผิดพลาดในการตรวจสอบข้อมูล", "error");
+                showToast("ไม่สามารถตรวจสอบข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง", "error");
             } finally {
                 btnSearch.disabled = false;
             }
@@ -2427,7 +2548,10 @@
             container.innerHTML = '';
 
             if (slipRecords.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-400">ไม่มีรายการแจ้งโอนเงิน</div>`;
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = "p-8 text-center text-slate-400";
+                emptyDiv.textContent = "ไม่มีรายการแจ้งโอนเงิน";
+                container.appendChild(emptyDiv);
                 return;
             }
 
@@ -2439,10 +2563,12 @@
                 leftDiv.className = "flex items-center space-x-4";
 
                 const img = document.createElement('img');
-                img.src = slip.slipImage;
+                img.src = slip.slipImage || 'https://placehold.co/150x200/e0f2fe/0284c7?text=No+Slip';
                 img.className = "w-16 h-20 object-cover rounded-xl border-2 border-sky-200 shadow-xs cursor-pointer hover:opacity-90 transition";
                 img.title = "คลิกเพื่อดูรูปใหญ่";
-                img.onclick = () => openImageModal(slip.slipImage);
+                img.onclick = () => {
+                    if (slip.slipImage) openImageModal(slip.slipImage);
+                };
 
                 const infoDiv = document.createElement('div');
                 infoDiv.className = "space-y-1";
@@ -2452,7 +2578,7 @@
 
                 const h4 = document.createElement('h4');
                 h4.className = "font-bold text-slate-800 text-sm";
-                h4.textContent = slip.customerName + " ";
+                h4.appendChild(document.createTextNode(slip.customerName + " "));
 
                 const pinSpan = document.createElement('span');
                 pinSpan.className = "text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-mono";
@@ -2476,11 +2602,18 @@
 
                 const pAmount = document.createElement('p');
                 pAmount.className = "text-xs text-slate-600";
-                pAmount.innerHTML = `ยอดเงินโอน: <strong class="text-sky-600 text-sm">฿${slip.amount.toLocaleString()}</strong> (แต้มที่จะได้รับ: ${slip.pointsCalculated} แต้ม)`;
+                pAmount.appendChild(document.createTextNode("ยอดเงินโอน: "));
+                const strongAmt = document.createElement('strong');
+                strongAmt.className = "text-sky-600 text-sm";
+                strongAmt.textContent = `฿${slip.amount.toLocaleString()}`;
+                pAmount.appendChild(strongAmt);
+                pAmount.appendChild(document.createTextNode(` (แต้มที่จะได้รับ: ${slip.pointsCalculated} แต้ม)`));
 
                 const pTime = document.createElement('p');
                 pTime.className = "text-[11px] text-slate-400";
-                pTime.innerHTML = `<i class="fa-regular fa-clock mr-1"></i>`;
+                const clockIcon = document.createElement('i');
+                clockIcon.className = "fa-regular fa-clock mr-1";
+                pTime.appendChild(clockIcon);
                 pTime.appendChild(document.createTextNode(slip.timestamp));
 
                 infoDiv.appendChild(titleRow);
@@ -2526,7 +2659,6 @@
         async function approveSlip(slip, btnEl) {
             if (btnEl) btnEl.disabled = true;
             try {
-                // 1. Update slip status
                 const { error: slipErr } = await supabaseClient
                     .from('slips')
                     .update({ status: 'approved' })
@@ -2534,7 +2666,6 @@
 
                 if (slipErr) throw slipErr;
 
-                // 2. Fetch current customer points & amount
                 const { data: custData, error: custFetchErr } = await supabaseClient
                     .from('customers')
                     .select('total_points, total_amount')
@@ -2543,7 +2674,6 @@
 
                 if (custFetchErr) throw custFetchErr;
 
-                // 3. Increment customer points & total_amount
                 const { error: custUpdateErr } = await supabaseClient
                     .from('customers')
                     .update({
@@ -2557,8 +2687,7 @@
                 showToast(`อนุมัติสลิปของคุณ ${slip.customerName} เรียบร้อยแล้ว (+${slip.pointsCalculated} แต้ม)`, "success");
                 await loadAdminData();
             } catch (err) {
-                console.error("Approve slip error:", err);
-                showToast("เกิดข้อผิดพลาดในการอนุมัติสลิป: " + (err.message || ""), "error");
+                showToast("ไม่สามารถอนุมัติสลิปได้ กรุณาลองใหม่อีกครั้ง", "error");
                 if (btnEl) btnEl.disabled = false;
             }
         }
@@ -2575,7 +2704,7 @@
                 showToast(`ปฏิเสธรายการสลิปของคุณ ${slip.customerName} เรียบร้อยแล้ว`, "success");
                 await loadAdminData();
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการปฏิเสธสลิป", "error");
+                showToast("ไม่สามารถปฏิเสธรายการสลิปได้ กรุณาลองใหม่อีกครั้ง", "error");
                 if (btnEl) btnEl.disabled = false;
             }
         }
@@ -2592,7 +2721,7 @@
                 showToast("ลบรายการสลิปเรียบร้อยแล้ว", "success");
                 await loadAdminData();
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการลบสลิป", "error");
+                showToast("ไม่สามารถลบรายการสลิปได้ กรุณาลองใหม่อีกครั้ง", "error");
                 if (btnEl) btnEl.disabled = false;
             }
         }
@@ -2605,7 +2734,13 @@
             const filtered = customerRecords.filter(c => c.customer_name.toLowerCase().includes(searchVal));
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ไม่พบข้อมูลลูกค้า</td></tr>`;
+                const trEmpty = document.createElement('tr');
+                const tdEmpty = document.createElement('td');
+                tdEmpty.colSpan = 5;
+                tdEmpty.className = "p-4 text-center text-slate-400";
+                tdEmpty.textContent = "ไม่พบข้อมูลลูกค้า";
+                trEmpty.appendChild(tdEmpty);
+                tbody.appendChild(trEmpty);
                 return;
             }
 
@@ -2683,7 +2818,7 @@
                 closeEditPointsModal();
                 await loadAdminData();
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการบันทึกแต้ม: " + (err.message || ""), "error");
+                showToast("ไม่สามารถบันทึกแต้มสะสมได้ กรุณาลองใหม่อีกครั้ง", "error");
             } finally {
                 btnSave.disabled = false;
             }
@@ -2692,6 +2827,13 @@
         function previewAdminQrImage(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            const validation = validateImageFile(file);
+            if (!validation.valid) {
+                showToast(validation.message, "error");
+                event.target.value = '';
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -2703,6 +2845,13 @@
         function previewAdminLogoImage(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            const validation = validateImageFile(file);
+            if (!validation.valid) {
+                showToast(validation.message, "error");
+                event.target.value = '';
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -2726,11 +2875,11 @@
 
                 shopSettings.remarkText = document.getElementById('editRemarkText').value.trim();
                 shopSettings.contactLine = document.getElementById('editContactLine').value.trim();
-                shopSettings.contactLineUrl = document.getElementById('editContactLineUrl').value.trim();
+                shopSettings.contactLineUrl = sanitizeUrl(document.getElementById('editContactLineUrl').value.trim(), false);
                 shopSettings.contactPhone = document.getElementById('editContactPhone').value.trim();
-                shopSettings.contactPhoneUrl = document.getElementById('editContactPhoneUrl').value.trim();
+                shopSettings.contactPhoneUrl = sanitizeUrl(document.getElementById('editContactPhoneUrl').value.trim(), true);
                 shopSettings.contactFacebook = document.getElementById('editContactFacebook').value.trim();
-                shopSettings.contactFacebookUrl = document.getElementById('editContactFacebookUrl').value.trim();
+                shopSettings.contactFacebookUrl = sanitizeUrl(document.getElementById('editContactFacebookUrl').value.trim(), false);
 
                 const musicUrlInput = document.getElementById('editMusicUrl').value.trim();
                 if (musicUrlInput !== shopSettings.musicUrl) {
@@ -2742,7 +2891,6 @@
                     }
                 }
 
-                // 1. Update shop_settings
                 await updateShopSettingsDB({
                     shop_name: shopSettings.shopName,
                     amount_per_point: shopSettings.amountPerPoint,
@@ -2756,7 +2904,6 @@
                     music_url: shopSettings.musicUrl
                 });
 
-                // 2. Sync bank_accounts
                 for (let i = 0; i < bankAccounts.length; i++) {
                     const acc = bankAccounts[i];
                     if (acc.id && !acc.id.toString().startsWith('temp_')) {
@@ -2782,8 +2929,7 @@
                 renderSettingsUI();
                 showToast("บันทึกข้อมูลตั้งค่าร้านค้าเรียบร้อยแล้ว", "success");
             } catch (err) {
-                console.error("Save shop settings error:", err);
-                showToast("เกิดข้อผิดพลาดในการบันทึกการตั้งค่า: " + (err.message || ""), "error");
+                showToast("ไม่สามารถบันทึกการตั้งค่าได้ กรุณาตรวจสอบสิทธิ์แอดมิน", "error");
             } finally {
                 btnSave.disabled = false;
             }
@@ -2791,40 +2937,40 @@
 
         function renderSettingsUI() {
             document.getElementById('headerShopName').textContent = shopSettings.shopName;
-            document.getElementById('headerShopLogo').src = shopSettings.shopLogo;
+            document.getElementById('headerShopLogo').src = sanitizeUrl(shopSettings.shopLogo, false) !== '#' ? shopSettings.shopLogo : 'https://placehold.co/150x150/38bdf8/ffffff?text=Logo';
             document.getElementById('footerShopName').textContent = shopSettings.shopName;
             renderCustomerBankAccounts();
 
             document.getElementById('displayRemarkText').textContent = shopSettings.remarkText;
-            document.getElementById('displayQrImage').src = shopSettings.qrImage;
+            document.getElementById('displayQrImage').src = sanitizeUrl(shopSettings.qrImage, false) !== '#' ? shopSettings.qrImage : 'https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment';
             document.getElementById('displayPointsRatioInfo').textContent = `✨ ทุก ${shopSettings.amountPerPoint || 100} บาท = 1 แต้ม ✨`;
 
             document.getElementById('contactShopTitle').textContent = shopSettings.shopName;
-            document.getElementById('contactShopLogo').src = shopSettings.shopLogo;
+            document.getElementById('contactShopLogo').src = sanitizeUrl(shopSettings.shopLogo, false) !== '#' ? shopSettings.shopLogo : 'https://placehold.co/150x150/38bdf8/ffffff?text=Logo';
             document.getElementById('displayContactLine').textContent = shopSettings.contactLine;
-            document.getElementById('linkContactLine').href = shopSettings.contactLineUrl || '#';
+            document.getElementById('linkContactLine').href = sanitizeUrl(shopSettings.contactLineUrl, false);
 
             document.getElementById('displayContactPhone').textContent = shopSettings.contactPhone;
-            document.getElementById('linkContactPhone').href = shopSettings.contactPhoneUrl || '#';
+            document.getElementById('linkContactPhone').href = sanitizeUrl(shopSettings.contactPhoneUrl, true);
 
             document.getElementById('displayContactFacebook').textContent = shopSettings.contactFacebook;
-            document.getElementById('linkContactFacebook').href = shopSettings.contactFacebookUrl || '#';
+            document.getElementById('linkContactFacebook').href = sanitizeUrl(shopSettings.contactFacebookUrl, false);
 
             document.getElementById('editShopName').value = shopSettings.shopName;
-            document.getElementById('editAdminEmail').value = loggedInAdminEmail || shopSettings.adminEmail || "admin@smartpay.com";
-            document.getElementById('adminShopLogoPreview').src = shopSettings.shopLogo;
+            document.getElementById('editAdminEmail').value = loggedInAdminEmail || "-";
+            document.getElementById('adminShopLogoPreview').src = sanitizeUrl(shopSettings.shopLogo, false) !== '#' ? shopSettings.shopLogo : 'https://placehold.co/150x150/38bdf8/ffffff?text=Logo';
             document.getElementById('editAmountPerPoint').value = shopSettings.amountPerPoint || 100;
             renderAdminBankAccountsInputs();
             renderAdminBubblesInputs();
 
             document.getElementById('editRemarkText').value = shopSettings.remarkText;
-            document.getElementById('adminQrPreview').src = shopSettings.qrImage;
+            document.getElementById('adminQrPreview').src = sanitizeUrl(shopSettings.qrImage, false) !== '#' ? shopSettings.qrImage : 'https://placehold.co/300x300/e0f2fe/0284c7?text=QR+Code+Payment';
             document.getElementById('editContactLine').value = shopSettings.contactLine;
-            document.getElementById('editContactLineUrl').value = shopSettings.contactLineUrl || '';
+            document.getElementById('editContactLineUrl').value = shopSettings.contactLineUrl === '#' ? '' : (shopSettings.contactLineUrl || '');
             document.getElementById('editContactPhone').value = shopSettings.contactPhone;
-            document.getElementById('editContactPhoneUrl').value = shopSettings.contactPhoneUrl || '';
+            document.getElementById('editContactPhoneUrl').value = shopSettings.contactPhoneUrl === '#' ? '' : (shopSettings.contactPhoneUrl || '');
             document.getElementById('editContactFacebook').value = shopSettings.contactFacebook;
-            document.getElementById('editContactFacebookUrl').value = shopSettings.contactFacebookUrl || '';
+            document.getElementById('editContactFacebookUrl').value = shopSettings.contactFacebookUrl === '#' ? '' : (shopSettings.contactFacebookUrl || '');
             document.getElementById('editMusicUrl').value = shopSettings.musicUrl || '';
         }
 
